@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Area Directory Matahari SKA Pekanbaru</title>
+<style>
+:root{--ink:#292524;--mut:#78716c;--line:#e7e2db;--bg:#f5f3f0;--red:#d3202f;--blue:#d3202f;--green:#15803d;--card:#fff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+#app{display:flex;flex-direction:column;height:100dvh;max-width:1100px;margin:0 auto;background:var(--bg)}
+header{background:var(--ink);border-bottom:4px solid #d3202f;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;flex:none}
+header h1{font-size:15px;margin:0;font-weight:700;letter-spacing:.2px;line-height:1.2}
+header small{display:block;font-weight:400;opacity:.75;font-size:11px}
+.here{margin-left:auto;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:999px;padding:6px 10px;font-size:12px;cursor:pointer;white-space:nowrap}
+.here b{color:#fff}
+main{flex:1;min-height:0;display:flex;flex-direction:column}
+@media(min-width:820px){main{flex-direction:row}#mapwrap{flex:1.5}#panel{flex:1;max-width:420px}}
+#mapwrap{position:relative;flex:0 0 46%;min-height:0;background:#f5f3f0;border-bottom:1px solid var(--line);overflow:hidden}
+@media(min-width:820px){#mapwrap{flex:1.5;border-bottom:0;border-right:1px solid var(--line)}}
+svg#map{width:100%;height:100%;display:block;touch-action:none;cursor:grab;user-select:none}
+.floors{position:absolute;left:8px;top:8px;display:flex;gap:4px;z-index:2}
+.floors button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.floors button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.zoom{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:4px;z-index:2}
+.zoom button{width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:18px;line-height:1;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.legend{position:absolute;left:8px;bottom:8px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-size:11px;color:var(--mut);z-index:2;display:flex;gap:10px;align-items:center}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+#panel{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg)}
+.search{padding:10px 12px 6px;flex:none}
+.search input{width:100%;padding:11px 14px;border-radius:12px;border:1px solid #cdd4e0;font-size:16px;outline:none;background:#fff}
+.search input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(211,32,47,.15)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:4px 12px 8px;flex:none;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid #cdd4e0;background:#fff;border-radius:999px;padding:5px 11px;font-size:12px;cursor:pointer;color:var(--ink);white-space:nowrap}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.list{flex:1;overflow:auto;padding:0 12px 14px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.item:active{background:#fdecee}
+.item .n{font-weight:600;font-size:14px}
+.item .s{font-size:12px;color:var(--mut);margin-top:1px}
+.badge{margin-left:auto;flex:none;font-size:11px;font-weight:700;border-radius:6px;padding:3px 7px;background:#efebe6;color:#44403c}
+.badge.f2{background:#fdecee;color:#d3202f}
+.empty{text-align:center;color:var(--mut);font-size:13px;padding:26px 10px}
+.route{padding:12px 14px;overflow:auto;flex:1}
+.route .top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.back{border:1px solid #cdd4e0;background:#fff;border-radius:10px;padding:7px 11px;font-size:13px;cursor:pointer}
+.route h2{margin:0;font-size:17px}
+.route .sub{font-size:12px;color:var(--mut)}
+.steps{list-style:none;margin:12px 0;padding:0;counter-reset:s}
+.steps li{position:relative;padding:8px 0 8px 36px;font-size:14px;line-height:1.35;border-bottom:1px dashed var(--line)}
+.steps li:last-child{border-bottom:0}
+.steps li:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:7px;width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.note{font-size:12px;color:#8a5a00;background:#fff7e0;border:1px solid #f5dc9b;border-radius:10px;padding:8px 10px;margin-top:6px}
+.sheet{position:fixed;inset:0;background:rgba(10,18,40,.5);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.sheet.show{display:flex}
+.sheet .box{background:#fff;width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:16px;max-height:80vh;overflow:auto}
+.sheet h3{margin:0 0 4px;font-size:16px}
+.sheet p{margin:0 0 12px;font-size:12px;color:var(--mut)}
+.opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px 12px;margin-bottom:7px;font-size:14px;cursor:pointer}
+.opt.on{border-color:#d3202f;background:#fdecee}
+.opt small{display:block;color:var(--mut);font-size:11px}
+@keyframes dash{to{stroke-dashoffset:-40}}
+.routeline{animation:dash 1.2s linear infinite}
+@media(max-width:599px){.legend{display:none}}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 12px 8px;flex:none}
+.mode{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 10px;border-radius:14px;border:1.5px solid #d6d3d1;background:#fff;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.06);font-family:inherit}
+.mode svg{width:18px;height:18px;flex:none}
+.mode .chev{font-size:11px;transition:transform .2s}
+.mode.on{background:#d3202f;border-color:#d3202f;color:#fff;box-shadow:0 4px 12px rgba(211,32,47,.28)}
+.mode.on .chev{transform:rotate(180deg)}
+.dd{display:flex;flex-direction:column;min-height:0;flex:1;margin:0 12px 10px;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(41,37,36,.08)}
+.dd[hidden]{display:none}
+.dd .search{padding:10px 10px 6px}
+.dd .list{padding:0 10px 10px}
+.dd .item{border-radius:10px;margin-bottom:6px}
+.letter{position:sticky;top:0;background:#fff;font-size:12px;font-weight:800;color:#d3202f;padding:8px 2px 4px;letter-spacing:1px;z-index:1}
+.cnum{flex:none;width:30px;height:30px;border-radius:50%;background:#fdecee;color:#d3202f;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+.hint{color:var(--mut);font-size:13px;text-align:center;padding:18px 16px;line-height:1.5}
+.blist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.blist button{border:1px solid #d6d3d1;background:#fff;border-radius:999px;padding:6px 11px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--ink)}
+@keyframes run{to{stroke-dashoffset:-32}}
+@keyframes pulse{0%,100%{opacity:.45}50%{opacity:.08}}
+.lights{animation:run .7s linear infinite}
+.glow{animation:pulse 1.3s ease-in-out infinite}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Area Directory<small>Matahari SKA Pekanbaru</small></h1>
+    <button class="here" id="hereBtn" aria-label="Ganti posisi awal"></button>
+  </header>
+  <main>
+    <section id="mapwrap">
+      <div class="floors"><button data-f="1">Lantai 1</button><button data-f="2">Lantai 2</button></div>
+      <div class="zoom"><button id="zin" aria-label="Perbesar">+</button><button id="zout" aria-label="Perkecil">&minus;</button><button id="zreset" aria-label="Reset" style="font-size:13px">&#8634;</button></div>
+      <div class="legend"><span><i class="dot" style="background:#292524"></i>Posisi Anda</span><span><i class="dot" style="background:#d3202f"></i>Tujuan</span><span><i class="dot" style="background:#fff;border:3px dashed #d3202f;box-sizing:border-box"></i>Rute</span></div>
+      <svg id="map" viewBox="0 0 1500 1204" xmlns="http://www.w3.org/2000/svg"><g id="layers"></g></svg>
+    </section>
+    <section id="panel">
+      <div id="browse" style="display:flex;flex-direction:column;min-height:0;flex:1">
+        <div class="modes"><button class="mode" id="mB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Cari Brand<span class="chev">&#9660;</span></button><button class="mode" id="mK"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Cari Kategori<span class="chev">&#9660;</span></button></div>
+        <div class="hint" id="hint">Pilih <b>Cari Brand</b> jika Anda tahu nama brand-nya,<br>atau <b>Cari Kategori</b> untuk melihat area produk.</div>
+        <div class="dd" id="ddB" hidden><div class="search"><input id="q" type="search" placeholder="Ketik nama brand, mis. Cardinal, Nike" autocomplete="off"></div><div class="list" id="list"></div></div>
+        <div class="dd" id="ddK" hidden><div class="list" id="catlist" style="padding-top:10px"></div></div>
+      </div>
+      <div class="route" id="route" style="display:none"></div>
+    </section>
+  </main>
+</div>
+<div class="sheet" id="sheet"><div class="box"><h3>Anda scan QR di titik mana?</h3><p>Pilih posisi awal. QR di tiap pintu otomatis mengisi ini.</p><div id="opts"></div></div></div>
+
+<script>
+const BR=[{"c": "6593", "n": "GIOVANNI VIENNA", "w": "ACCESSORIES", "f": 1, "x": 317, "y": 825, "e": 0, "k": "Accessories", "t": -1, "a": "Handbags"}, {"c": "6658", "n": "KACAMATA MADONNA", "w": "ACCESSORIES", "f": 1, "x": 282, "y": 819, "e": 0, "k": "Accessories", "t": -1, "a": "Handbags"}, {"c": "6610", "n": "MADONNA ACC", "w": "ACCESSORIES", "f": 1, "x": 307, "y": 811, "e": 0, "k": "Accessories", "t": -1, "a": "Handbags"}, {"c": "6591", "n": "MADONNA-JWL", "w": "ACCESSORIES", "f": 1, "x": 265, "y": 823, "e": 0, "k": "Accessories", "t": -1, "a": "Handbags"}, {"c": "6512", "n": "CARDINAL JUNIOR", "w": "CHILDREN BOYS", "f": 1, "x": 706, "y": 150, "e": 1, "k": "Pakaian Anak", "t": 2}, {"c": "3272", "n": "CHARACTER", "w": "CHILDREN BOYS", "f": 1, "x": 669, "y": 283, "e": 0, "k": "Pakaian Anak", "t": -1}, {"c": "6504", "n": "COOL", "w": "CHILDREN BOYS", "f": 1, "x": 524, "y": 244, "e": 1, "k": "Pakaian Anak", "t": 13}, {"c": "6496", "n": "CROCODILE JUNIOR", "w": "CHILDREN BOYS", "f": 1, "x": 428, "y": 409, "e": 1, "k": "Pakaian Anak", "t": 30}, {"c": "3273", "n": "DISNEY", "w": "CHILDREN BOYS", "f": 1, "x": 669, "y": 283, "e": 0, "k": "Pakaian Anak", "t": -1}, {"c": "6508", "n": "JSP", "w": "CHILDREN BOYS", "f": 1, "x": 381, "y": 243, "e": 1, "k": "Pakaian Anak", "t": 8}, {"c": "6510", "n": "LEE COOPER", "w": "CHILDREN BOYS", "f": 1, "x": 467, "y": 244, "e": 1, "k": "Pakaian Anak", "t": 11}, {"c": "3269", "n": "LITTLE M", "w": "CHILDREN BOYS", "f": 1, "x": 850, "y": 256, "e": 1, "k": "Pakaian Anak", "t": 16}, {"c": "3271", "n": "NEVADA", "w": "CHILDREN BOYS", "f": 1, "x": 895, "y": 390, "e": 1, "k": "Pakaian Anak", "t": 73}, {"c": "6505", "n": "OSELLA KID", "w": "CHILDREN BOYS", "f": 1, "x": 643, "y": 175, "e": 1, "k": "Pakaian Anak", "t": 1}, {"c": "6506", "n": "PITO DITO", "w": "CHILDREN BOYS", "f": 1, "x": 546, "y": 390, "e": 1, "k": "Pakaian Anak", "t": 32}, {"c": "6507", "n": "RODEO JUNIOR BOYS", "w": "CHILDREN BOYS", "f": 1, "x": 492, "y": 390, "e": 1, "k": "Pakaian Anak", "t": 31}, {"c": "3366", "n": "SUKO BOYS", "w": "CHILDREN BOYS", "f": 1, "x": 680, "y": 390, "e": 1, "k": "Pakaian Anak", "t": 82}, {"c": "6514", "n": "THATS DONALD", "w": "CHILDREN BOYS", "f": 1, "x": 934, "y": 256, "e": 1, "k": "Pakaian Anak", "t": 17}, {"c": "6511", "n": "TWIST CLUB", "w": "CHILDREN BOYS", "f": 1, "x": 708, "y": 265, "e": 1, "k": "Pakaian Anak", "t": 5}, {"c": "6531", "n": "BALLOON", "w": "CHILDREN GIRLS", "f": 1, "x": 1178, "y": 256, "e": 1, "k": "Pakaian Anak", "t": 20}, {"c": "6529", "n": "CARDINAL KIDS GIRL", "w": "CHILDREN GIRLS", "f": 1, "x": 706, "y": 206, "e": 1, "k": "Pakaian Anak", "t": 3}, {"c": "3321", "n": "CHARACTER", "w": "CHILDREN GIRLS", "f": 1, "x": 669, "y": 283, "e": 0, "k": "Pakaian Anak", "t": -1}, {"c": "6519", "n": "COOL GIRLS", "w": "CHILDREN GIRLS", "f": 1, "x": 566, "y": 261, "e": 1, "k": "Pakaian Anak", "t": 15}, {"c": "3281", "n": "DISNEY", "w": "CHILDREN GIRLS", "f": 1, "x": 669, "y": 283, "e": 0, "k": "Pakaian Anak", "t": -1}, {"c": "6530", "n": "DONITA", "w": "CHILDREN GIRLS", "f": 1, "x": 1099, "y": 256, "e": 1, "k": "Pakaian Anak", "t": 19}, {"c": "6517", "n": "EXIT", "w": "CHILDREN GIRLS", "f": 1, "x": 1018, "y": 256, "e": 1, "k": "Pakaian Anak", "t": 18}, {"c": "6525", "n": "JSP GIRL", "w": "CHILDREN GIRLS", "f": 1, "x": 381, "y": 279, "e": 1, "k": "Pakaian Anak", "t": 9}, {"c": "3275", "n": "LITTLE M", "w": "CHILDREN GIRLS", "f": 1, "x": 850, "y": 256, "e": 1, "k": "Pakaian Anak", "t": 16}, {"c": "3278", "n": "NEVADA", "w": "CHILDREN GIRLS", "f": 1, "x": 895, "y": 390, "e": 1, "k": "Pakaian Anak", "t": 73}, {"c": "6527", "n": "OSELLA GIRL", "w": "CHILDREN GIRLS", "f": 1, "x": 645, "y": 265, "e": 1, "k": "Pakaian Anak", "t": 4}, {"c": "6518", "n": "PITO DITO", "w": "CHILDREN GIRLS", "f": 1, "x": 546, "y": 390, "e": 1, "k": "Pakaian Anak", "t": 32}, {"c": "6533", "n": "PRINCESSA FLAMI", "w": "CHILDREN GIRLS", "f": 1, "x": 1259, "y": 256, "e": 1, "k": "Pakaian Anak", "t": 21}, {"c": "6521", "n": "RODEO JUNIOR GRL", "w": "CHILDREN GIRLS", "f": 1, "x": 428, "y": 359, "e": 1, "k": "Pakaian Anak", "t": 29}, {"c": "3367", "n": "SUKO GIRLS", "w": "CHILDREN GIRLS", "f": 1, "x": 680, "y": 390, "e": 1, "k": "Pakaian Anak", "t": 82}, {"c": "3393", "n": "BYRCH & co", "w": "CHILDREN SHOES", "f": 1, "x": 478, "y": 559, "e": 0, "k": "Sepatu Anak", "t": -1}, {"c": "6366", "n": "CROCODILE KIDS", "w": "CHILDREN SHOES", "f": 1, "x": 532, "y": 556, "e": 1, "k": "Sepatu Anak", "t": 38}, {"c": "4316", "n": "FLADEO DISNEY", "w": "CHILDREN SHOES", "f": 1, "x": 409, "y": 602, "e": 1, "k": "Sepatu Anak", "t": 35}, {"c": "6364", "n": "FLADEO KIDS", "w": "CHILDREN SHOES", "f": 1, "x": 458, "y": 602, "e": 1, "k": "Sepatu Anak", "t": 36}, {"c": "6138", "n": "FRANSISCA", "w": "CHILDREN SHOES", "f": 1, "x": 416, "y": 519, "e": 1, "k": "Sepatu Anak", "t": 33}, {"c": "4326", "n": "HOC", "w": "CHILDREN SHOES", "f": 1, "x": 478, "y": 559, "e": 0, "k": "Sepatu Anak", "t": -1}, {"c": "6999", "n": "JACKSON KIDS", "w": "CHILDREN SHOES", "f": 1, "x": 465, "y": 519, "e": 1, "k": "Sepatu Anak", "t": 34}, {"c": "3454", "n": "KINN", "w": "CHILDREN SHOES", "f": 1, "x": 478, "y": 559, "e": 0, "k": "Sepatu Anak", "t": -1}, {"c": "3235", "n": "LITTLE M", "w": "CHILDREN SHOES", "f": 1, "x": 850, "y": 256, "e": 1, "k": "Sepatu Anak", "t": 16}, {"c": "3236", "n": "NEVADA", "w": "CHILDREN SHOES", "f": 1, "x": 532, "y": 505, "e": 1, "k": "Sepatu Anak", "t": 37}, {"c": "6365", "n": "YONGKIDS", "w": "CHILDREN SHOES", "f": 1, "x": 532, "y": 612, "e": 1, "k": "Sepatu Anak", "t": 39}, {"c": "6305", "n": "APS", "w": "FRAGRANCE", "f": 1, "x": 364, "y": 936, "e": 1, "k": "Fragrance", "t": 63}, {"c": "4208", "n": "DUBAI PERFUMES", "w": "FRAGRANCE", "f": 1, "x": 318, "y": 961, "e": 1, "k": "Fragrance", "t": 61}, {"c": "6304", "n": "FLEUR BLEUE", "w": "FRAGRANCE", "f": 1, "x": 318, "y": 889, "e": 1, "k": "Fragrance", "t": 59}, {"c": "4350", "n": "FOR MOI", "w": "FRAGRANCE", "f": 1, "x": 342, "y": 920, "e": 0, "k": "Fragrance", "t": -1}, {"c": "6310", "n": "FOXIS", "w": "FRAGRANCE", "f": 1, "x": 342, "y": 920, "e": 0, "k": "Fragrance", "t": -1}, {"c": "6316", "n": "I-PERFUME", "w": "FRAGRANCE", "f": 1, "x": 318, "y": 928, "e": 1, "k": "Fragrance", "t": 60}, {"c": "6307", "n": "LA RIVE", "w": "FRAGRANCE", "f": 1, "x": 342, "y": 920, "e": 0, "k": "Fragrance", "t": -1}, {"c": "6551", "n": "BELLEZZA", "w": "HANDBAGS", "f": 1, "x": 260, "y": 818, "e": 1, "k": "Handbags", "t": 57}, {"c": "3291", "n": "CONNEXION", "w": "HANDBAGS", "f": 1, "x": 1148, "y": 565, "e": 1, "k": "Handbags", "t": 83}, {"c": "6553", "n": "HANA", "w": "HANDBAGS", "f": 1, "x": 318, "y": 818, "e": 1, "k": "Handbags", "t": 58}, {"c": "3365", "n": "KHA BAG", "w": "HANDBAGS", "f": 1, "x": 434, "y": 718, "e": 1, "k": "Handbags", "t": 76}, {"c": "3290", "n": "NEVADA", "w": "HANDBAGS", "f": 1, "x": 289, "y": 818, "e": 0, "k": "Handbags", "t": -1}, {"c": "3455", "n": "SAINT YVES BAG", "w": "HANDBAGS", "f": 1, "x": 434, "y": 792, "e": 1, "k": "Handbags", "t": 77}, {"c": "3395", "n": "SAVRO", "w": "HANDBAGS", "f": 1, "x": 289, "y": 818, "e": 0, "k": "Handbags", "t": -1}, {"c": "3362", "n": "SHE BLOOMS", "w": "HANDBAGS", "f": 1, "x": 289, "y": 818, "e": 0, "k": "Handbags", "t": -1}, {"c": "3354", "n": "SUKO BAG", "w": "HANDBAGS", "f": 1, "x": 289, "y": 818, "e": 0, "k": "Handbags", "t": -1}, {"c": "6945", "n": "COOL BABY", "w": "INFANTS & ESSENTIALS", "f": 1, "x": 524, "y": 280, "e": 1, "k": "Pakaian Anak", "t": 14}, {"c": "6535", "n": "HIPO-FANT APP", "w": "INFANTS & ESSENTIALS", "f": 1, "x": 320, "y": 242, "e": 1, "k": "Pakaian Anak", "t": 6}, {"c": "6539", "n": "JSP BABY", "w": "INFANTS & ESSENTIALS", "f": 1, "x": 423, "y": 261, "e": 1, "k": "Pakaian Anak", "t": 10}, {"c": "6586", "n": "LEE COOPER BABY", "w": "INFANTS & ESSENTIALS", "f": 1, "x": 467, "y": 280, "e": 1, "k": "Pakaian Anak", "t": 12}, {"c": "3284", "n": "LICENSE BABY", "w": "INFANTS & ESSENTIALS", "f": 1, "x": 669, "y": 283, "e": 0, "k": "Pakaian Anak", "t": -1}, {"c": "3287", "n": "LICENSE ESS", "w": "INFANTS & ESSENTIALS", "f": 1, "x": 669, "y": 283, "e": 0, "k": "Pakaian Anak", "t": -1}, {"c": "3283", "n": "LITTLE M BABY", "w": "INFANTS & ESSENTIALS", "f": 1, "x": 850, "y": 256, "e": 1, "k": "Pakaian Anak", "t": 16}, {"c": "3286", "n": "LITTLE M ESS", "w": "INFANTS & ESSENTIALS", "f": 1, "x": 850, "y": 256, "e": 1, "k": "Pakaian Anak", "t": 16}, {"c": "6540", "n": "QNA", "w": "INFANTS & ESSENTIALS", "f": 1, "x": 320, "y": 278, "e": 1, "k": "Pakaian Anak", "t": 7}, {"c": "3225", "n": "LOREAL", "w": "INTERNATIONAL BRAND", "f": 1, "x": 518, "y": 909, "e": 0, "k": "International Brand", "t": -1}, {"c": "3224", "n": "MAYBELLINE", "w": "INTERNATIONAL BRAND", "f": 1, "x": 518, "y": 909, "e": 0, "k": "International Brand", "t": -1}, {"c": "3375", "n": "NAYOUNG", "w": "INTERNATIONAL BRAND", "f": 1, "x": 518, "y": 909, "e": 0, "k": "International Brand", "t": -1}, {"c": "6276", "n": "REVLON", "w": "INTERNATIONAL BRAND", "f": 1, "x": 481, "y": 896, "e": 1, "k": "International Brand", "t": 65}, {"c": "6277", "n": "ULTIMA II", "w": "INTERNATIONAL BRAND", "f": 1, "x": 554, "y": 922, "e": 1, "k": "International Brand", "t": 67}, {"c": "3219", "n": "DISNEY SLEEPWEAR", "w": "INTIMATE", "f": 1, "x": 1352, "y": 465, "e": 0, "k": "Pakaian Dalam Wanita", "t": -1}, {"c": "6264", "n": "LULUDI", "w": "INTIMATE", "f": 1, "x": 1352, "y": 465, "e": 0, "k": "Pakaian Dalam Wanita", "t": -1}, {"c": "3221", "n": "NEVADA UNDERWEAR", "w": "INTIMATE", "f": 1, "x": 1352, "y": 465, "e": 0, "k": "Pakaian Dalam Wanita", "t": -1}, {"c": "6259", "n": "PIERRE CARDIN", "w": "INTIMATE", "f": 1, "x": 1378, "y": 490, "e": 1, "k": "Pakaian Dalam Wanita", "t": 26}, {"c": "3352", "n": "SHE SENSE UNDERWEAR", "w": "INTIMATE", "f": 1, "x": 1378, "y": 590, "e": 1, "k": "Pakaian Dalam Wanita", "t": 28}, {"c": "6255", "n": "SORELLA", "w": "INTIMATE", "f": 1, "x": 1326, "y": 490, "e": 1, "k": "Pakaian Dalam Wanita", "t": 25}, {"c": "3222", "n": "ST YVES UNDERWEAR", "w": "INTIMATE", "f": 1, "x": 1352, "y": 465, "e": 0, "k": "Pakaian Dalam Wanita", "t": -1}, {"c": "6263", "n": "VENICY", "w": "INTIMATE", "f": 1, "x": 1326, "y": 340, "e": 1, "k": "Pakaian Dalam Wanita", "t": 22}, {"c": "6257", "n": "WACOAL", "w": "INTIMATE", "f": 1, "x": 1378, "y": 340, "e": 1, "k": "Pakaian Dalam Wanita", "t": 23}, {"c": "6272", "n": "YOUNG HEARTS", "w": "INTIMATE", "f": 1, "x": 1352, "y": 415, "e": 1, "k": "Pakaian Dalam Wanita", "t": 24}, {"c": "3328", "n": "SUKO CASUAL", "w": "LADIES BASIC", "f": 1, "x": 680, "y": 565, "e": 1, "k": "Pakaian Wanita", "t": 75}, {"c": "3368", "n": "SUKO SLEEPWEAR", "w": "LADIES BASIC", "f": 1, "x": 1326, "y": 590, "e": 1, "k": "Pakaian Dalam Wanita", "t": 27}, {"c": "3348", "n": "SUKO SPORTS LADIES", "w": "LADIES BASIC", "f": 1, "x": 680, "y": 565, "e": 1, "k": "Pakaian Wanita", "t": 75}, {"c": "3369", "n": "SUKO UNDERWEAR", "w": "LADIES BASIC", "f": 1, "x": 1326, "y": 590, "e": 1, "k": "Pakaian Dalam Wanita", "t": 27}, {"c": "3215", "n": "ANNISA", "w": "LADIES CLASSIC", "f": 1, "x": 1161, "y": 922, "e": 1, "k": "Pakaian Wanita", "t": 72}, {"c": "6224", "n": "CARDINAL FEMME", "w": "LADIES CLASSIC", "f": 1, "x": 1184, "y": 780, "e": 1, "k": "Pakaian Wanita", "t": 50}, {"c": "6231", "n": "COME", "w": "LADIES CLASSIC", "f": 1, "x": 1211, "y": 705, "e": 1, "k": "Pakaian Wanita", "t": 49}, {"c": "3201", "n": "CONNEXION", "w": "LADIES CLASSIC", "f": 1, "x": 1148, "y": 565, "e": 1, "k": "Pakaian Wanita", "t": 83}, {"c": "6233", "n": "EXPAND", "w": "LADIES CLASSIC", "f": 1, "x": 1096, "y": 706, "e": 1, "k": "Pakaian Wanita", "t": 46}, {"c": "6234", "n": "GEELA", "w": "LADIES CLASSIC", "f": 1, "x": 1068, "y": 781, "e": 1, "k": "Pakaian Wanita", "t": 47}, {"c": "6244", "n": "SIMPLICITY", "w": "LADIES CLASSIC", "f": 1, "x": 1238, "y": 780, "e": 1, "k": "Pakaian Wanita", "t": 51}, {"c": "3388", "n": "SIRA", "w": "LADIES CLASSIC", "f": 1, "x": 1102, "y": 732, "e": 0, "k": "Pakaian Wanita", "t": -1}, {"c": "3203", "n": "ST YVES", "w": "LADIES CLASSIC", "f": 1, "x": 434, "y": 792, "e": 1, "k": "Pakaian Wanita", "t": 77}, {"c": "6245", "n": "TRISET LADIES", "w": "LADIES CLASSIC", "f": 1, "x": 1129, "y": 781, "e": 1, "k": "Pakaian Wanita", "t": 48}, {"c": "3389", "n": "BYRCH & Co", "w": "LADIES SHOES", "f": 1, "x": 366, "y": 662, "e": 0, "k": "Sepatu Wanita", "t": -1}, {"c": "3319", "n": "DISNEY YOUTH", "w": "LADIES SHOES", "f": 1, "x": 366, "y": 662, "e": 0, "k": "Sepatu Wanita", "t": -1}, {"c": "6346", "n": "FLADEO", "w": "LADIES SHOES", "f": 1, "x": 288, "y": 752, "e": 1, "k": "Sepatu Wanita", "t": 45}, {"c": "6344", "n": "GENNY", "w": "LADIES SHOES", "f": 1, "x": 288, "y": 508, "e": 1, "k": "Sepatu Wanita", "t": 41}, {"c": "3390", "n": "KHA", "w": "LADIES SHOES", "f": 1, "x": 434, "y": 718, "e": 1, "k": "Sepatu Wanita", "t": 76}, {"c": "6349", "n": "LAVIOLA", "w": "LADIES SHOES", "f": 1, "x": 288, "y": 692, "e": 1, "k": "Sepatu Wanita", "t": 44}, {"c": "6343", "n": "LAWRENSIA", "w": "LADIES SHOES", "f": 1, "x": 288, "y": 631, "e": 1, "k": "Sepatu Wanita", "t": 43}, {"c": "6342", "n": "PETER KEIZA", "w": "LADIES SHOES", "f": 1, "x": 288, "y": 571, "e": 1, "k": "Sepatu Wanita", "t": 42}, {"c": "3232", "n": "SAINT YVES", "w": "LADIES SHOES", "f": 1, "x": 434, "y": 792, "e": 1, "k": "Sepatu Wanita", "t": 77}, {"c": "6348", "n": "ST MORITZ", "w": "LADIES SHOES", "f": 1, "x": 288, "y": 450, "e": 1, "k": "Sepatu Wanita", "t": 40}, {"c": "3233", "n": "ST YVES", "w": "LADIES SHOES", "f": 1, "x": 531, "y": 792, "e": 1, "k": "Sepatu Wanita", "t": 79}, {"c": "3373", "n": "SUKO", "w": "LADIES SHOES", "f": 1, "x": 366, "y": 662, "e": 0, "k": "Sepatu Wanita", "t": -1}, {"c": "6354", "n": "TRISET", "w": "LADIES SHOES", "f": 1, "x": 366, "y": 662, "e": 0, "k": "Sepatu Wanita", "t": -1}, {"c": "3400", "n": "VOLO", "w": "LADIES SHOES", "f": 1, "x": 531, "y": 718, "e": 1, "k": "Sepatu Wanita", "t": 78}, {"c": "3374", "n": "ZES", "w": "LADIES SHOES", "f": 1, "x": 366, "y": 662, "e": 0, "k": "Sepatu Wanita", "t": -1}, {"c": "6961", "n": "INSTAPERFECT", "w": "LOCAL BRAND", "f": 1, "x": 444, "y": 942, "e": 0, "k": "Local Brand", "t": -1}, {"c": "6575", "n": "MAKE OVER", "w": "LOCAL BRAND", "f": 1, "x": 406, "y": 936, "e": 1, "k": "Local Brand", "t": 64}, {"c": "6293", "n": "WARDAH", "w": "LOCAL BRAND", "f": 1, "x": 481, "y": 948, "e": 1, "k": "Local Brand", "t": 66}, {"c": "3360", "n": "GENERAL TOYS", "w": "TOYS", "f": 1, "x": 707, "y": 386, "e": 0, "k": "Toys", "t": -1}, {"c": "3296", "n": "PLUSH TOYS", "w": "TOYS", "f": 1, "x": 667, "y": 418, "e": 0, "k": "Toys", "t": -1}, {"c": "3358", "n": "SUKO TOYS", "w": "TOYS", "f": 1, "x": 683, "y": 407, "e": 0, "k": "Toys", "t": -1}, {"c": "6209", "n": "AKO", "w": "YOUNG FASHION", "f": 1, "x": 831, "y": 922, "e": 1, "k": "Pakaian Remaja Wanita", "t": 68}, {"c": "6210", "n": "C2", "w": "YOUNG FASHION", "f": 1, "x": 877, "y": 837, "e": 0, "k": "Pakaian Remaja Wanita", "t": -1}, {"c": "6211", "n": "CARDINAL", "w": "YOUNG FASHION", "f": 1, "x": 914, "y": 922, "e": 1, "k": "Pakaian Remaja Wanita", "t": 69}, {"c": "6203", "n": "CORNICHE", "w": "YOUNG FASHION", "f": 1, "x": 848, "y": 706, "e": 1, "k": "Pakaian Remaja Wanita", "t": 52}, {"c": "3209", "n": "DISNEY", "w": "YOUNG FASHION", "f": 1, "x": 877, "y": 837, "e": 0, "k": "Pakaian Remaja Wanita", "t": -1}, {"c": "6208", "n": "DUST", "w": "YOUNG FASHION", "f": 1, "x": 1002, "y": 922, "e": 1, "k": "Pakaian Remaja Wanita", "t": 70}, {"c": "6200", "n": "EXIT", "w": "YOUNG FASHION", "f": 1, "x": 880, "y": 780, "e": 1, "k": "Pakaian Remaja Wanita", "t": 54}, {"c": "6201", "n": "GRAPHIS", "w": "YOUNG FASHION", "f": 1, "x": 816, "y": 780, "e": 1, "k": "Pakaian Remaja Wanita", "t": 53}, {"c": "6207", "n": "LOGO", "w": "YOUNG FASHION", "f": 1, "x": 958, "y": 721, "e": 1, "k": "Pakaian Remaja Wanita", "t": 55}, {"c": "4288", "n": "MELTRICK", "w": "YOUNG FASHION", "f": 1, "x": 877, "y": 837, "e": 0, "k": "Pakaian Remaja Wanita", "t": -1}, {"c": "3205", "n": "NEVADA", "w": "YOUNG FASHION", "f": 1, "x": 680, "y": 755, "e": 1, "k": "Pakaian Remaja Wanita", "t": 80}, {"c": "6202", "n": "TRISET", "w": "YOUNG FASHION", "f": 1, "x": 1084, "y": 922, "e": 1, "k": "Pakaian Remaja Wanita", "t": 71}, {"c": "6206", "n": "ULTRAVIOLET", "w": "YOUNG FASHION", "f": 1, "x": 958, "y": 796, "e": 1, "k": "Pakaian Remaja Wanita", "t": 56}, {"c": "3347", "n": "ZES WOMEN", "w": "YOUNG FASHION", "f": 1, "x": 877, "y": 837, "e": 0, "k": "Pakaian Remaja Wanita", "t": -1}, {"c": "3243", "n": "ADIDAS", "w": "ACTIVE SHOES", "f": 2, "x": 485, "y": 912, "e": 1, "k": "Sepatu Sport", "t": 73}, {"c": "4346", "n": "AZA", "w": "ACTIVE SHOES", "f": 2, "x": 610, "y": 918, "e": 1, "k": "Sepatu Sport", "t": 76}, {"c": "6375", "n": "HOMYPED", "w": "ACTIVE SHOES", "f": 2, "x": 468, "y": 798, "e": 1, "k": "Sepatu Sport", "t": 47}, {"c": "6168", "n": "JACKSON ACTIVE", "w": "ACTIVE SHOES", "f": 2, "x": 553, "y": 918, "e": 1, "k": "Sepatu Sport", "t": 75}, {"c": "6377", "n": "NEW ERA", "w": "ACTIVE SHOES", "f": 2, "x": 516, "y": 872, "e": 0, "k": "Sepatu Sport", "t": -1}, {"c": "3345", "n": "NIKE", "w": "ACTIVE SHOES", "f": 2, "x": 485, "y": 971, "e": 1, "k": "Sepatu Sport", "t": 74}, {"c": "6379", "n": "PRECISE", "w": "ACTIVE SHOES", "f": 2, "x": 602, "y": 800, "e": 1, "k": "Sepatu Sport", "t": 51}, {"c": "6380", "n": "ROYAL SPORTING HOUSE", "w": "ACTIVE SHOES", "f": 2, "x": 370, "y": 935, "e": 1, "k": "Sepatu Sport", "t": 80}, {"c": "6383", "n": "TOMKINS", "w": "ACTIVE SHOES", "f": 2, "x": 512, "y": 798, "e": 1, "k": "Sepatu Sport", "t": 48}, {"c": "3301", "n": "BEDDING ACCS", "w": "HOME", "f": 2, "x": 368, "y": 356, "e": 0, "k": "Home & Travel", "t": -1}, {"c": "3359", "n": "HOME LIFESTYLE", "w": "HOME", "f": 2, "x": 368, "y": 356, "e": 0, "k": "Home & Travel", "t": -1}, {"c": "3357", "n": "SUKO HOME LIVING", "w": "HOME", "f": 2, "x": 368, "y": 356, "e": 0, "k": "Home & Travel", "t": -1}, {"c": "3302", "n": "TEXTILE", "w": "HOME", "f": 2, "x": 368, "y": 356, "e": 0, "k": "Home & Travel", "t": -1}, {"c": "6393", "n": "ANDREW SMITH", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 1306, "y": 740, "e": 1, "k": "Fashion Pria Casual", "t": 57}, {"c": "3260", "n": "AOS", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 1321, "y": 251, "e": 1, "k": "Fashion Pria Casual", "t": 9}, {"c": "6397", "n": "CARDINAL", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 702, "y": 388, "e": 1, "k": "Fashion Pria Casual", "t": 78}, {"c": "3259", "n": "COLE", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 735, "y": 568, "e": 1, "k": "Fashion Pria Casual", "t": 36}, {"c": "6410", "n": "CROCODILE", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 931, "y": 542, "e": 0, "k": "Fashion Pria Casual", "t": -1}, {"c": "6399", "n": "EMBA CLASSIC", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 580, "y": 365, "e": 1, "k": "Fashion Pria Casual", "t": 19}, {"c": "6392", "n": "GABS", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 490, "y": 415, "e": 1, "k": "Fashion Pria Casual", "t": 18}, {"c": "6394", "n": "GIANI GRACIO", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 714, "y": 915, "e": 1, "k": "Fashion Pria Casual", "t": 68}, {"c": "4229", "n": "JACK NICKLAUS", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 1020, "y": 798, "e": 1, "k": "Fashion Pria Casual", "t": 45}, {"c": "6418", "n": "LARUSSO", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 1292, "y": 526, "e": 1, "k": "Fashion Pria Casual", "t": 27}, {"c": "6398", "n": "LGS", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 700, "y": 1048, "e": 1, "k": "Fashion Pria Casual", "t": 71}, {"c": "6395", "n": "M GEE", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 766, "y": 1048, "e": 1, "k": "Fashion Pria Casual", "t": 72}, {"c": "6416", "n": "MEN & CLO", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 1162, "y": 815, "e": 1, "k": "Fashion Pria Casual", "t": 55}, {"c": "6400", "n": "MOC", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 1020, "y": 723, "e": 1, "k": "Fashion Pria Casual", "t": 44}, {"c": "6402", "n": "RICARDO", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 1292, "y": 609, "e": 1, "k": "Fashion Pria Casual", "t": 28}, {"c": "6415", "n": "SCOTCH & CO", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 876, "y": 739, "e": 1, "k": "Fashion Pria Casual", "t": 41}, {"c": "6391", "n": "WATCHOUT", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 943, "y": 739, "e": 1, "k": "Fashion Pria Casual", "t": 42}, {"c": "3350", "n": "ZES MEN", "w": "MEN CONTEMP CASUAL", "f": 2, "x": 931, "y": 542, "e": 0, "k": "Fashion Pria Casual", "t": -1}, {"c": "6459", "n": "BY FORD", "w": "MEN ESSENTIALS", "f": 2, "x": 1418, "y": 590, "e": 1, "k": "Pakaian Dalam Pria", "t": 14}, {"c": "3257", "n": "COLE SOCKS", "w": "MEN ESSENTIALS", "f": 2, "x": 1066, "y": 918, "e": 1, "k": "Pakaian Dalam Pria", "t": 64}, {"c": "3253", "n": "COLE UNDERWEAR", "w": "MEN ESSENTIALS", "f": 2, "x": 1066, "y": 918, "e": 1, "k": "Pakaian Dalam Pria", "t": 64}, {"c": "3254", "n": "CROCODILE UNDERWEAR", "w": "MEN ESSENTIALS", "f": 2, "x": 1029, "y": 975, "e": 1, "k": "Pakaian Dalam Pria", "t": 63}, {"c": "6464", "n": "GTMAN SPORT", "w": "MEN ESSENTIALS", "f": 2, "x": 1418, "y": 822, "e": 1, "k": "Pakaian Dalam Pria", "t": 16}, {"c": "6465", "n": "LGS", "w": "MEN ESSENTIALS", "f": 2, "x": 1418, "y": 706, "e": 1, "k": "Pakaian Dalam Pria", "t": 15}, {"c": "6466", "n": "MUNDO", "w": "MEN ESSENTIALS", "f": 2, "x": 1225, "y": 853, "e": 0, "k": "Pakaian Dalam Pria", "t": -1}, {"c": "4292", "n": "PIERRE CARDIN", "w": "MEN ESSENTIALS", "f": 2, "x": 1225, "y": 853, "e": 0, "k": "Pakaian Dalam Pria", "t": -1}, {"c": "3255", "n": "RIDER UNDERWEAR", "w": "MEN ESSENTIALS", "f": 2, "x": 1225, "y": 853, "e": 0, "k": "Pakaian Dalam Pria", "t": -1}, {"c": "6440", "n": "ANDRE LAURENT", "w": "MEN FORMAL", "f": 2, "x": 867, "y": 922, "e": 1, "k": "Fashion Formal Pria", "t": 59}, {"c": "6434", "n": "BALI LESTARI", "w": "MEN FORMAL", "f": 2, "x": 1278, "y": 815, "e": 1, "k": "Fashion Formal Pria", "t": 58}, {"c": "4476", "n": "BALIASRI", "w": "MEN FORMAL", "f": 2, "x": 947, "y": 874, "e": 0, "k": "Fashion Formal Pria", "t": -1}, {"c": "6420", "n": "CARDINAL", "w": "MEN FORMAL", "f": 2, "x": 1162, "y": 740, "e": 1, "k": "Fashion Formal Pria", "t": 54}, {"c": "3249", "n": "COLE", "w": "MEN FORMAL", "f": 2, "x": 735, "y": 809, "e": 1, "k": "Fashion Formal Pria", "t": 53}, {"c": "6448", "n": "CROCODILE", "w": "MEN FORMAL", "f": 2, "x": 778, "y": 945, "e": 1, "k": "Fashion Formal Pria", "t": 70}, {"c": "6442", "n": "JOBB", "w": "MEN FORMAL", "f": 2, "x": 894, "y": 979, "e": 1, "k": "Fashion Formal Pria", "t": 61}, {"c": "6444", "n": "JOHNWIN", "w": "MEN FORMAL", "f": 2, "x": 1249, "y": 740, "e": 1, "k": "Fashion Formal Pria", "t": 56}, {"c": "6437", "n": "KRISNA WAHYU", "w": "MEN FORMAL", "f": 2, "x": 947, "y": 874, "e": 0, "k": "Fashion Formal Pria", "t": -1}, {"c": "6421", "n": "LAWELL", "w": "MEN FORMAL", "f": 2, "x": 921, "y": 922, "e": 1, "k": "Fashion Formal Pria", "t": 60}, {"c": "6432", "n": "SCOTCH & CO", "w": "MEN FORMAL", "f": 2, "x": 907, "y": 814, "e": 1, "k": "Fashion Formal Pria", "t": 43}, {"c": "6424", "n": "VALINO", "w": "MEN FORMAL", "f": 2, "x": 984, "y": 918, "e": 1, "k": "Fashion Formal Pria", "t": 62}, {"c": "4086", "n": "BRUNO PREMI", "w": "MEN SHOES", "f": 2, "x": 342, "y": 566, "e": 1, "k": "Sepatu Pria", "t": 37}, {"c": "3391", "n": "BYRCH & co", "w": "MEN SHOES", "f": 2, "x": 582, "y": 977, "e": 1, "k": "Sepatu Pria", "t": 77}, {"c": "6325", "n": "CARDINAL", "w": "MEN SHOES", "f": 2, "x": 484, "y": 512, "e": 1, "k": "Sepatu Pria", "t": 29}, {"c": "6334", "n": "CROCODILE", "w": "MEN SHOES", "f": 2, "x": 340, "y": 654, "e": 1, "k": "Sepatu Pria", "t": 39}, {"c": "6322", "n": "DR KEVIN", "w": "MEN SHOES", "f": 2, "x": 484, "y": 568, "e": 1, "k": "Sepatu Pria", "t": 30}, {"c": "6320", "n": "FLADEO", "w": "MEN SHOES", "f": 2, "x": 580, "y": 725, "e": 1, "k": "Sepatu Pria", "t": 49}, {"c": "6328", "n": "JACKSON", "w": "MEN SHOES", "f": 2, "x": 600, "y": 609, "e": 1, "k": "Sepatu Pria", "t": 35}, {"c": "6317", "n": "JIM JOKER", "w": "MEN SHOES", "f": 2, "x": 600, "y": 526, "e": 1, "k": "Sepatu Pria", "t": 33}, {"c": "6331", "n": "P CARDIN", "w": "MEN SHOES", "f": 2, "x": 398, "y": 566, "e": 1, "k": "Sepatu Pria", "t": 38}, {"c": "6323", "n": "ROCKVALLEY", "w": "MEN SHOES", "f": 2, "x": 548, "y": 526, "e": 1, "k": "Sepatu Pria", "t": 32}, {"c": "3392", "n": "SAVRO", "w": "MEN SHOES", "f": 2, "x": 394, "y": 654, "e": 1, "k": "Sepatu Pria", "t": 40}, {"c": "3399", "n": "VOLO", "w": "MEN SHOES", "f": 2, "x": 490, "y": 722, "e": 1, "k": "Sepatu Pria", "t": 46}, {"c": "6324", "n": "WATCHOUT", "w": "MEN SHOES", "f": 2, "x": 943, "y": 739, "e": 1, "k": "Sepatu Pria", "t": 42}, {"c": "6321", "n": "YONGKI KOMALADI", "w": "MEN SHOES", "f": 2, "x": 484, "y": 622, "e": 1, "k": "Sepatu Pria", "t": 31}, {"c": "3372", "n": "ZES", "w": "MEN SHOES", "f": 2, "x": 491, "y": 631, "e": 0, "k": "Sepatu Pria", "t": -1}, {"c": "3262", "n": "AMERICAN JEANS", "w": "MEN YOUNG CASUAL", "f": 2, "x": 931, "y": 542, "e": 0, "k": "Fashion Pria Casual", "t": -1}, {"c": "6469", "n": "BOMB BOOGIE", "w": "MEN YOUNG CASUAL", "f": 2, "x": 1162, "y": 390, "e": 1, "k": "Fashion Pria Casual", "t": 21}, {"c": "6470", "n": "CARDINAL JEANS", "w": "MEN YOUNG CASUAL", "f": 2, "x": 702, "y": 388, "e": 1, "k": "Fashion Pria Casual", "t": 78}, {"c": "6483", "n": "D & F", "w": "MEN YOUNG CASUAL", "f": 2, "x": 931, "y": 542, "e": 0, "k": "Fashion Pria Casual", "t": -1}, {"c": "3265", "n": "DISNEY", "w": "MEN YOUNG CASUAL", "f": 2, "x": 1022, "y": 390, "e": 1, "k": "Fashion Pria Casual", "t": 24}, {"c": "6471", "n": "EMBA JEANS", "w": "MEN YOUNG CASUAL", "f": 2, "x": 580, "y": 365, "e": 1, "k": "Fashion Pria Casual", "t": 19}, {"c": "4031", "n": "LEE COOPER", "w": "MEN YOUNG CASUAL", "f": 2, "x": 1278, "y": 390, "e": 1, "k": "Fashion Pria Casual", "t": 22}, {"c": "6468", "n": "LEVIS JEANS", "w": "MEN YOUNG CASUAL", "f": 2, "x": 735, "y": 162, "e": 1, "k": "Fashion Pria Casual", "t": 0}, {"c": "6480", "n": "LGS JEANS", "w": "MEN YOUNG CASUAL", "f": 2, "x": 714, "y": 975, "e": 1, "k": "Fashion Pria Casual", "t": 69}, {"c": "6467", "n": "LOIS", "w": "MEN YOUNG CASUAL", "f": 2, "x": 580, "y": 256, "e": 1, "k": "Fashion Pria Casual", "t": 11}, {"c": "3264", "n": "NEVADA", "w": "MEN YOUNG CASUAL", "f": 2, "x": 1018, "y": 251, "e": 1, "k": "Fashion Pria Casual", "t": 8}, {"c": "6472", "n": "OSELLA", "w": "MEN YOUNG CASUAL", "f": 2, "x": 1418, "y": 358, "e": 1, "k": "Fashion Pria Casual", "t": 12}, {"c": "6474", "n": "THE GABS", "w": "MEN YOUNG CASUAL", "f": 2, "x": 490, "y": 415, "e": 1, "k": "Fashion Pria Casual", "t": 18}, {"c": "6477", "n": "TRIPLE", "w": "MEN YOUNG CASUAL", "f": 2, "x": 490, "y": 256, "e": 1, "k": "Fashion Pria Casual", "t": 10}, {"c": "6479", "n": "WATCHOUT", "w": "MEN YOUNG CASUAL", "f": 2, "x": 943, "y": 739, "e": 1, "k": "Fashion Pria Casual", "t": 42}, {"c": "6475", "n": "WRANGLER JEANS", "w": "MEN YOUNG CASUAL", "f": 2, "x": 735, "y": 254, "e": 1, "k": "Fashion Pria Casual", "t": 1}, {"c": "3327", "n": "SUKO CASUAL", "w": "MENS BASIC", "f": 2, "x": 1176, "y": 596, "e": 1, "k": "Mens Basic", "t": 26}, {"c": "3344", "n": "SUKO ESSENTIAL", "w": "MENS BASIC", "f": 2, "x": 1176, "y": 596, "e": 1, "k": "Mens Basic", "t": 26}, {"c": "3370", "n": "SUKO SLEEPWEAR", "w": "MENS BASIC", "f": 2, "x": 1176, "y": 596, "e": 1, "k": "Mens Basic", "t": 26}, {"c": "3349", "n": "SUKO SPORTS MEN", "w": "MENS BASIC", "f": 2, "x": 1176, "y": 596, "e": 1, "k": "Mens Basic", "t": 26}, {"c": "3343", "n": "SUKO WORKWEAR", "w": "MENS BASIC", "f": 2, "x": 1176, "y": 596, "e": 1, "k": "Mens Basic", "t": 26}, {"c": "3396", "n": "YIPPI", "w": "TOYS", "f": 2, "x": 530, "y": 257, "e": 0, "k": "Toys", "t": -1}, {"c": "6690", "n": "AMERICAN TOURISTER", "w": "TRAVEL", "f": 2, "x": 337, "y": 310, "e": 1, "k": "Home & Travel", "t": 3}, {"c": "3324", "n": "BACKPACK", "w": "TRAVEL", "f": 2, "x": 368, "y": 356, "e": 0, "k": "Home & Travel", "t": -1}, {"c": "3361", "n": "EOLA", "w": "TRAVEL", "f": 2, "x": 392, "y": 310, "e": 1, "k": "Home & Travel", "t": 4}, {"c": "6701", "n": "JACK NICKLAUS", "w": "TRAVEL", "f": 2, "x": 342, "y": 406, "e": 1, "k": "Home & Travel", "t": 5}, {"c": "6705", "n": "POLO MILANO", "w": "TRAVEL", "f": 2, "x": 398, "y": 406, "e": 1, "k": "Home & Travel", "t": 6}, {"c": "6949", "n": "PROSPORT", "w": "TRAVEL", "f": 2, "x": 368, "y": 356, "e": 0, "k": "Home & Travel", "t": -1}, {"c": "6706", "n": "REI / TRACKER", "w": "TRAVEL", "f": 2, "x": 370, "y": 236, "e": 1, "k": "Home & Travel", "t": 2}, {"c": "6714", "n": "TRAVEL TIME", "w": "TRAVEL", "f": 2, "x": 370, "y": 469, "e": 1, "k": "Home & Travel", "t": 7}];
+const POLY={1:[[552,62],[828,62],[828,213],[1405,213],[1405,784],[1180,985],[828,985],[828,1130],[552,1130],[552,985],[230,985],[230,425],[285,425],[285,215],[552,215]],2:[[600,62],[880,62],[880,210],[1455,210],[1455,795],[1245,998],[885,998],[885,1140],[600,1140],[600,998],[315,998],[315,210],[600,210]]};
+const ESC={1:[757,487,213,148],2:[810,488,220,152]};
+const PINTU={1:[[690,34,"ENTRANCE 2"],[690,1162,"ENTRANCE 3"]],2:[[740,34,"ENTRANCE 4"],[740,1172,"ENTRANCE 5"]]};
+const TILES={1:[{"n":"HANDUK","x":1300,"y":655,"w":100,"h":120},{"n": "OSELLA BOY", "x": 620, "y": 120, "w": 46, "h": 110}, {"n": "CARDINAL BOY", "x": 666, "y": 120, "w": 79, "h": 61}, {"n": "CARDINAL GIRL", "x": 666, "y": 181, "w": 79, "h": 49}, {"n": "OSELLA GIRL", "x": 620, "y": 230, "w": 50, "h": 70}, {"n": "TWIST KIDS", "x": 670, "y": 230, "w": 75, "h": 70}, {"n": "HIPOFANT", "x": 285, "y": 225, "w": 69, "h": 33}, {"n": "QNA", "x": 285, "y": 258, "w": 69, "h": 39}, {"n": "JSP BOY", "x": 354, "y": 225, "w": 54, "h": 36}, {"n": "JSP GIRL", "x": 354, "y": 261, "w": 54, "h": 36}, {"n": "JSP BABY", "x": 408, "y": 225, "w": 30, "h": 72}, {"n": "LC Kids", "x": 438, "y": 225, "w": 58, "h": 38}, {"n": "LC Baby", "x": 438, "y": 263, "w": 58, "h": 34}, {"n": "COOL BOY", "x": 496, "y": 225, "w": 55, "h": 38}, {"n": "COOL BABY", "x": 496, "y": 263, "w": 55, "h": 34}, {"n": "COOL GIRL", "x": 551, "y": 225, "w": 29, "h": 72}, {"n": "LITTLE M", "x": 810, "y": 215, "w": 81, "h": 82}, {"n": "THATS DONALD", "x": 891, "y": 215, "w": 85, "h": 82}, {"n": "EXIT KIDS", "x": 976, "y": 215, "w": 85, "h": 82}, {"n": "DONITA", "x": 1061, "y": 215, "w": 76, "h": 82}, {"n": "BALOON", "x": 1137, "y": 215, "w": 81, "h": 82}, {"n": "PRINCESSA FLAMI", "x": 1218, "y": 215, "w": 82, "h": 82}, {"n": "VENICY", "x": 1300, "y": 290, "w": 52, "h": 100}, {"n": "WACOAL", "x": 1352, "y": 290, "w": 53, "h": 100}, {"n": "YOUNG HEARTS", "x": 1300, "y": 390, "w": 105, "h": 50}, {"n": "SORELLA", "x": 1300, "y": 440, "w": 52, "h": 100}, {"n": "PIERRE CARDIN", "x": 1352, "y": 440, "w": 53, "h": 100}, {"n": "SUKO UW/SL", "x": 1300, "y": 540, "w": 52, "h": 100}, {"n": "SHESENSE", "x": 1352, "y": 540, "w": 53, "h": 100}, {"n": "RODEO GIRL", "x": 385, "y": 340, "w": 86, "h": 38}, {"n": "CROCODILE JR", "x": 385, "y": 378, "w": 86, "h": 62}, {"n": "RODEO BOY", "x": 471, "y": 340, "w": 42, "h": 100}, {"n": "PITO DITO", "x": 513, "y": 340, "w": 67, "h": 100}, {"n": "Fransisca Kids", "x": 385, "y": 478, "w": 61, "h": 82}, {"n": "JACKSON KIDS", "x": 446, "y": 478, "w": 38, "h": 82}, {"n": "FLADEO DISNEY", "x": 385, "y": 560, "w": 48, "h": 85}, {"n": "FLADEO KIDS", "x": 433, "y": 560, "w": 51, "h": 85}, {"n": "NEVADA", "x": 484, "y": 478, "w": 96, "h": 54}, {"n": "CROCODILE", "x": 484, "y": 532, "w": 96, "h": 47}, {"n": "YONGKIDS", "x": 484, "y": 579, "w": 96, "h": 66}, {"n": "ST MORITZ", "x": 230, "y": 425, "w": 115, "h": 51}, {"n": "GENNY", "x": 230, "y": 476, "w": 115, "h": 65}, {"n": "PETER KEIZA", "x": 230, "y": 541, "w": 115, "h": 60}, {"n": "LAWRENSIA", "x": 230, "y": 601, "w": 115, "h": 60}, {"n": "LAVIOLA", "x": 230, "y": 661, "w": 115, "h": 62}, {"n": "FLADEO", "x": 230, "y": 723, "w": 115, "h": 57}, {"n": "EXPAND", "x": 1035, "y": 680, "w": 122, "h": 52}, {"n": "GEELA", "x": 1035, "y": 732, "w": 66, "h": 98}, {"n": "TRISET LADIES", "x": 1101, "y": 732, "w": 56, "h": 98}, {"n": "COME", "x": 1157, "y": 680, "w": 108, "h": 50}, {"n": "CARDINAL FEMME", "x": 1157, "y": 730, "w": 54, "h": 100}, {"n": "SIMPLICITY", "x": 1211, "y": 730, "w": 54, "h": 100}, {"n": "CORNICHE", "x": 785, "y": 680, "w": 126, "h": 51}, {"n": "GRAPHIS", "x": 785, "y": 731, "w": 63, "h": 99}, {"n": "EXIT", "x": 848, "y": 731, "w": 63, "h": 99}, {"n": "LOGO", "x": 911, "y": 680, "w": 94, "h": 82}, {"n": "ULTRA VIOLET", "x": 911, "y": 762, "w": 94, "h": 68}, {"n": "BELLEZA", "x": 230, "y": 775, "w": 61, "h": 85}, {"n": "HANNA", "x": 291, "y": 775, "w": 54, "h": 85}, {"n": "FLEUR BLEUE", "x": 285, "y": 870, "w": 66, "h": 38}, {"n": "I-PERFUME", "x": 285, "y": 908, "w": 66, "h": 39}, {"n": "Dubai Perf.", "x": 285, "y": 947, "w": 66, "h": 28}, {"n": "JAGUAR", "x": 351, "y": 870, "w": 84, "h": 27}, {"n": "APS", "x": 351, "y": 897, "w": 27, "h": 78}, {"n": "MAKE OVER", "x": 378, "y": 897, "w": 57, "h": 78}, {"n": "REVLON", "x": 435, "y": 870, "w": 92, "h": 52}, {"n": "WARDAH", "x": 435, "y": 922, "w": 92, "h": 53}, {"n": "ULTIMA II", "x": 527, "y": 870, "w": 53, "h": 105}, {"n": "AKO", "x": 790, "y": 870, "w": 82, "h": 105}, {"n": "CARDINAL GIRL", "x": 872, "y": 870, "w": 84, "h": 105}, {"n": "DUST", "x": 956, "y": 870, "w": 91, "h": 105}, {"n": "TRISET", "x": 1047, "y": 870, "w": 75, "h": 105}, {"n": "ANNISA", "x": 1122, "y": 870, "w": 78, "h": 105}, {"n": "NEVADA", "x": 790, "y": 340, "w": 210, "h": 100}, {"n": "NEVADA", "x": 1035, "y": 340, "w": 225, "h": 100}, {"n": "SUKO LADIES", "x": 615, "y": 480, "w": 130, "h": 170}, {"n": "KHA", "x": 385, "y": 680, "w": 97, "h": 75}, {"n": "SAINT YVES", "x": 385, "y": 755, "w": 97, "h": 75}, {"n": "VOLO", "x": 482, "y": 680, "w": 98, "h": 75}, {"n": "ST YVES", "x": 482, "y": 755, "w": 98, "h": 75}, {"n": "NEVADA", "x": 615, "y": 680, "w": 130, "h": 150}, {"n": "NEVADA", "x": 615, "y": 870, "w": 130, "h": 220}, {"n": "SUKO KIDS", "x": 615, "y": 340, "w": 130, "h": 100}, {"n": "CNX", "x": 1035, "y": 480, "w": 227, "h": 170}],2:[{"n": "LEVIS", "x": 670, "y": 115, "w": 130, "h": 93}, {"n": "WRANGLER", "x": 670, "y": 208, "w": 130, "h": 92}, {"n": "TRACKER", "x": 315, "y": 215, "w": 110, "h": 42}, {"n": "AMERICAN TOURISTER", "x": 315, "y": 257, "w": 44, "h": 106}, {"n": "EOLA", "x": 359, "y": 257, "w": 66, "h": 106}, {"n": "JACK NICKLAUS", "x": 315, "y": 363, "w": 55, "h": 85}, {"n": "POLO MILANO", "x": 370, "y": 363, "w": 55, "h": 85}, {"n": "TRAVEL TIME", "x": 315, "y": 448, "w": 110, "h": 42}, {"n": "NEVADA", "x": 845, "y": 205, "w": 347, "h": 92}, {"n": "AOS", "x": 1192, "y": 205, "w": 258, "h": 92}, {"n": "TRIPLE", "x": 445, "y": 215, "w": 90, "h": 82}, {"n": "LOIS", "x": 535, "y": 215, "w": 90, "h": 82}, {"n": "OSELLA", "x": 1380, "y": 300, "w": 75, "h": 116}, {"n": "IZZUE", "x": 1380, "y": 416, "w": 75, "h": 116}, {"n": "BY FORD", "x": 1380, "y": 532, "w": 75, "h": 116}, {"n": "LGS UW", "x": 1380, "y": 648, "w": 75, "h": 116}, {"n": "GT MAN SPORT", "x": 1380, "y": 764, "w": 75, "h": 116}, {"n": "GAB'S DENIM", "x": 445, "y": 340, "w": 90, "h": 50}, {"n": "GAB'S CASUAL", "x": 445, "y": 390, "w": 90, "h": 50}, {"n": "EMBA DENIM", "x": 535, "y": 340, "w": 90, "h": 50}, {"n": "EMBA CASUAL", "x": 535, "y": 390, "w": 90, "h": 50}, {"n": "BOOM BOOGIE", "x": 1105, "y": 340, "w": 115, "h": 100}, {"n": "LEE COOPER", "x": 1220, "y": 340, "w": 115, "h": 100}, {"n": "NEVADA", "x": 840, "y": 340, "w": 138, "h": 100}, {"n": "DISNEY", "x": 978, "y": 340, "w": 87, "h": 100}, {"n": "SUKO GO", "x": 1105, "y": 485, "w": 143, "h": 56}, {"n": "SUKO MEN", "x": 1105, "y": 541, "w": 143, "h": 109}, {"n": "LARUSSO", "x": 1248, "y": 485, "w": 87, "h": 83}, {"n": "RICARDO", "x": 1248, "y": 568, "w": 87, "h": 82}, {"n": "CARDINAL", "x": 445, "y": 485, "w": 77, "h": 55}, {"n": "DR KEVIN", "x": 445, "y": 540, "w": 77, "h": 55}, {"n": "YONGKI KOMALADI", "x": 445, "y": 595, "w": 77, "h": 55}, {"n": "ROCKVALLEY", "x": 522, "y": 485, "w": 52, "h": 83}, {"n": "JIM JOKER", "x": 574, "y": 485, "w": 51, "h": 83}, {"n": "WATCH OUT", "x": 522, "y": 568, "w": 52, "h": 82}, {"n": "JACKSON", "x": 574, "y": 568, "w": 51, "h": 82}, {"n": "COLE CASUAL", "x": 670, "y": 485, "w": 130, "h": 165}, {"n": "BRUNO PREMI", "x": 315, "y": 525, "w": 55, "h": 82}, {"n": "PIERRE CARDIN", "x": 370, "y": 525, "w": 55, "h": 82}, {"n": "CROCODILE", "x": 315, "y": 607, "w": 49, "h": 93}, {"n": "SAVRO", "x": 364, "y": 607, "w": 61, "h": 93}, {"n": "SCOTCH & CO CASUAL", "x": 840, "y": 690, "w": 72, "h": 98}, {"n": "WATCHOUT GROUP", "x": 912, "y": 690, "w": 62, "h": 98}, {"n": "SCOTCH & CO FORMAL", "x": 840, "y": 788, "w": 134, "h": 52}, {"n": "MOC", "x": 974, "y": 690, "w": 91, "h": 66}, {"n": "JACK NICKLAUS", "x": 974, "y": 756, "w": 91, "h": 84}, {"n": "VOLO", "x": 445, "y": 690, "w": 89, "h": 65}, {"n": "HOMYPED", "x": 445, "y": 755, "w": 46, "h": 85}, {"n": "TOMKINS", "x": 491, "y": 755, "w": 43, "h": 85}, {"n": "FLADEO", "x": 534, "y": 690, "w": 91, "h": 70}, {"n": "NEWERA", "x": 534, "y": 760, "w": 45, "h": 80}, {"n": "PRECISE", "x": 579, "y": 760, "w": 46, "h": 80}, {"n": "COLE CASUAL", "x": 670, "y": 690, "w": 130, "h": 88}, {"n": "COLE FORMAL", "x": 670, "y": 778, "w": 130, "h": 62}, {"n": "CARDINAL FORMAL", "x": 1105, "y": 690, "w": 115, "h": 100}, {"n": "MEN & CLO", "x": 1105, "y": 790, "w": 115, "h": 50}, {"n": "JOHNWINN", "x": 1220, "y": 690, "w": 58, "h": 100}, {"n": "ANDREW SMITH", "x": 1278, "y": 690, "w": 57, "h": 100}, {"n": "BALI LESTARI", "x": 1220, "y": 790, "w": 115, "h": 50}, {"n": "ANDRE LAURENT", "x": 840, "y": 885, "w": 54, "h": 75}, {"n": "LAWELL", "x": 894, "y": 885, "w": 54, "h": 75}, {"n": "JOBB", "x": 840, "y": 960, "w": 108, "h": 38}, {"n": "VALINO", "x": 948, "y": 885, "w": 73, "h": 67}, {"n": "CROCODILE UW", "x": 948, "y": 952, "w": 162, "h": 46}, {"n": "COLE UW", "x": 1021, "y": 885, "w": 89, "h": 67}, {"n": "DP SOCKS", "x": 1110, "y": 885, "w": 29, "h": 67}, {"n": "DP SOCKS", "x": 1139, "y": 885, "w": 61, "h": 67}, {"n": "COLE UW", "x": 1110, "y": 952, "w": 90, "h": 46}, {"n": "GIANI GRACIO", "x": 670, "y": 885, "w": 87, "h": 60}, {"n": "LGS DENIM", "x": 670, "y": 945, "w": 87, "h": 60}, {"n": "CROCODILE FORMAL", "x": 757, "y": 885, "w": 43, "h": 120}, {"n": "LGS CASUAL", "x": 670, "y": 1005, "w": 61, "h": 85}, {"n": "MGEE", "x": 731, "y": 1005, "w": 69, "h": 85}, {"n": "ADIDAS", "x": 445, "y": 880, "w": 80, "h": 64}, {"n": "NIKE", "x": 445, "y": 944, "w": 80, "h": 54}, {"n": "JACKSON ACTIVE", "x": 525, "y": 880, "w": 56, "h": 76}, {"n": "AZA", "x": 581, "y": 880, "w": 59, "h": 76}, {"n": "BYRCH & CO", "x": 525, "y": 956, "w": 115, "h": 42}, {"n": "CARDINAL JEANS", "x": 670, "y": 335, "w": 65, "h": 105}, {"n": "CARDINAL CASUAL", "x": 735, "y": 335, "w": 65, "h": 105}, {"n": "ROYAL SPORTING HOUSE", "x": 322, "y": 880, "w": 96, "h": 110}]};
+const TCAT={1:["Handuk","Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Dalam Wanita", "Pakaian Dalam Wanita", "Pakaian Dalam Wanita", "Pakaian Dalam Wanita", "Pakaian Dalam Wanita", "Pakaian Dalam Wanita", "Pakaian Dalam Wanita", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Pakaian Anak", "Sepatu Anak", "Sepatu Anak", "Sepatu Anak", "Sepatu Anak", "Sepatu Anak", "Sepatu Anak", "Sepatu Anak", "Sepatu Wanita", "Sepatu Wanita", "Sepatu Wanita", "Sepatu Wanita", "Sepatu Wanita", "Sepatu Wanita", "Pakaian Wanita", "Pakaian Wanita", "Pakaian Wanita", "Pakaian Wanita", "Pakaian Wanita", "Pakaian Wanita", "Pakaian Remaja Wanita", "Pakaian Remaja Wanita", "Pakaian Remaja Wanita", "Pakaian Remaja Wanita", "Pakaian Remaja Wanita", "Handbags", "Handbags", "Fragrance", "Fragrance", "Fragrance", "Fragrance", "Fragrance", "Local Brand", "International Brand", "Local Brand", "International Brand", "Pakaian Remaja Wanita", "Pakaian Remaja Wanita", "Pakaian Remaja Wanita", "Pakaian Remaja Wanita", "Pakaian Wanita", "Pakaian Anak", "Pakaian Anak", "Pakaian Wanita", "Sepatu Wanita", "Sepatu Wanita", "Sepatu Wanita", "Sepatu Wanita", "Pakaian Remaja Wanita", "Pakaian Remaja Wanita", "Pakaian Anak", "Pakaian Wanita"],2:["Fashion Pria Casual", "Fashion Pria Casual", "Home & Travel", "Home & Travel", "Home & Travel", "Home & Travel", "Home & Travel", "Home & Travel", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Pakaian Dalam Pria", "Pakaian Dalam Pria", "Pakaian Dalam Pria", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Sepatu Pria", "Sepatu Pria", "Sepatu Pria", "Sepatu Pria", "Sepatu Pria", "Sepatu Pria", "Sepatu Pria", "Fashion Pria Casual", "Sepatu Pria", "Sepatu Pria", "Sepatu Pria", "Sepatu Pria", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Formal Pria", "Fashion Pria Casual", "Fashion Pria Casual", "Sepatu Pria", "Sepatu Sport", "Sepatu Sport", "Sepatu Pria", "Sepatu Sport", "Sepatu Sport", "Fashion Pria Casual", "Fashion Formal Pria", "Fashion Formal Pria", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Formal Pria", "Fashion Formal Pria", "Fashion Formal Pria", "Fashion Formal Pria", "Fashion Formal Pria", "Pakaian Dalam Pria", "Pakaian Dalam Pria", "Pakaian Dalam Pria", "Pakaian Dalam Pria", "Pakaian Dalam Pria", "Fashion Pria Casual", "Fashion Pria Casual", "Fashion Formal Pria", "Fashion Pria Casual", "Fashion Pria Casual", "Sepatu Sport", "Sepatu Sport", "Sepatu Sport", "Sepatu Sport", "Sepatu Pria", "Fashion Pria Casual", "Fashion Pria Casual", "Sepatu Sport"]};
+const ISLES={1:[{"x":1300,"y":655,"w":100,"h":120},{"x": 620, "y": 120, "w": 125, "h": 180}, {"x": 285, "y": 225, "w": 295, "h": 72}, {"x": 810, "y": 215, "w": 490, "h": 82}, {"x": 1300, "y": 290, "w": 105, "h": 350}, {"x": 385, "y": 340, "w": 195, "h": 100}, {"x": 385, "y": 478, "w": 195, "h": 167}, {"x": 230, "y": 425, "w": 115, "h": 355}, {"x": 1035, "y": 680, "w": 230, "h": 150}, {"x": 785, "y": 680, "w": 220, "h": 150}, {"x": 230, "y": 775, "w": 115, "h": 85}, {"x": 285, "y": 870, "w": 295, "h": 105}, {"x": 790, "y": 870, "w": 410, "h": 105}, {"x": 790, "y": 340, "w": 210, "h": 100}, {"x": 1035, "y": 340, "w": 225, "h": 100}, {"x": 615, "y": 480, "w": 130, "h": 170}, {"x": 385, "y": 680, "w": 195, "h": 150}, {"x": 615, "y": 680, "w": 130, "h": 150}, {"x": 615, "y": 870, "w": 130, "h": 220}, {"x": 615, "y": 340, "w": 130, "h": 100}, {"x": 1035, "y": 480, "w": 227, "h": 170}],2:[{"x": 670, "y": 115, "w": 130, "h": 185}, {"x": 315, "y": 215, "w": 110, "h": 275}, {"x": 845, "y": 205, "w": 605, "h": 92}, {"x": 445, "y": 215, "w": 180, "h": 82}, {"x": 1380, "y": 300, "w": 75, "h": 580}, {"x": 445, "y": 340, "w": 180, "h": 100}, {"x": 1105, "y": 340, "w": 230, "h": 100}, {"x": 840, "y": 340, "w": 225, "h": 100}, {"x": 1105, "y": 485, "w": 230, "h": 165}, {"x": 445, "y": 485, "w": 180, "h": 165}, {"x": 670, "y": 485, "w": 130, "h": 165}, {"x": 315, "y": 525, "w": 110, "h": 175}, {"x": 840, "y": 690, "w": 225, "h": 150}, {"x": 445, "y": 690, "w": 180, "h": 150}, {"x": 670, "y": 690, "w": 130, "h": 150}, {"x": 1105, "y": 690, "w": 230, "h": 150}, {"x": 840, "y": 885, "w": 360, "h": 113}, {"x": 670, "y": 885, "w": 130, "h": 205}, {"x": 445, "y": 880, "w": 195, "h": 118}, {"x": 670, "y": 335, "w": 130, "h": 105}, {"x": 322, "y": 880, "w": 96, "h": 110}]};
+const MAIN={1:{H:[458,665],V:[588,780]},2:{H:[462,668],V:[648,820]}};
+const STARTS={
+ 'l1-utara':{f:1,x:700,y:100,name:'Entrance 2',sub:'Lantai 1'},
+ 'l1-selatan':{f:1,x:700,y:1105,name:'Entrance 3',sub:'Lantai 1'},
+ 'l2-utara':{f:2,x:737,y:95,name:'Entrance 4',sub:'Lantai 2'},
+ 'l2-selatan':{f:2,x:737,y:1110,name:'Entrance 5',sub:'Lantai 2'},
+ 'l1-eskalator':{f:1,x:865,y:665,name:'Eskalator',sub:'Lantai 1'},
+ 'l2-eskalator':{f:2,x:925,y:462,name:'Eskalator',sub:'Lantai 2'}
+};
+/* ---------- Jalur lorong (koordinat peta). H:[y,x1,x2]  V:[x,y1,y2] ---------- */
+const AIS={
+ 1:{H:[[315,370,1282],[458,370,1282],[665,370,1282],[850,370,1200],[100,588,780],[1105,588,780]],
+    V:[[370,315,850],[588,100,1105],[780,100,458],[780,665,1105],[1005,315,850],[1282,315,850]],
+    X:[[458,865],[665,865],[100,700],[1105,700]]},
+ 2:{H:[[95,648,820],[320,430,1360],[462,430,1360],[668,430,1360],[862,430,1360],[1110,648,820]],
+    V:[[430,320,862],[648,95,1110],[820,95,462],[820,668,1110],[1085,320,862],[1360,320,862]],
+    X:[[462,925],[668,925],[95,737],[1110,737]]}
+};
+const PORTALS=[[1,865,458,2,925,462],[1,865,665,2,925,668]];
+const STEP=28;
+const G={nodes:new Map(),adj:new Map()};
+const key=(f,x,y)=>f+':'+Math.round(x)+','+Math.round(y);
+function addNode(f,x,y){const k=key(f,x,y);if(!G.nodes.has(k)){G.nodes.set(k,{f,x:Math.round(x),y:Math.round(y)});G.adj.set(k,[])}return k}
+function addEdge(a,b,w){G.adj.get(a).push([b,w]);G.adj.get(b).push([a,w])}
+function build(){
+ for(const f of [1,2]){
+  const A=AIS[f];
+  for(const [y,x1,x2] of A.H){
+    const xs=new Set([x1,x2]);for(let x=x1;x<=x2;x+=STEP)xs.add(x);
+    for(const [vx,v1,v2] of A.V)if(vx>=x1&&vx<=x2&&y>=v1&&y<=v2)xs.add(vx);
+    for(const [ey,ex] of A.X)if(ey===y&&ex>=x1&&ex<=x2)xs.add(ex);
+    const s=[...xs].sort((a,b)=>a-b);
+    for(let i=0;i<s.length;i++){const k=addNode(f,s[i],y);if(i){const p=key(f,s[i-1],y);addEdge(p,k,s[i]-s[i-1])}}
+  }
+  for(const [x,y1,y2] of A.V){
+    const ys=new Set([y1,y2]);for(let y=y1;y<=y2;y+=STEP)ys.add(y);
+    for(const [hy,h1,h2] of A.H)if(hy>=y1&&hy<=y2&&x>=h1&&x<=h2)ys.add(hy);
+    const s=[...ys].sort((a,b)=>a-b);
+    for(let i=0;i<s.length;i++){const k=addNode(f,x,s[i]);if(i){const p=key(f,x,s[i-1]);addEdge(p,k,s[i]-s[i-1])}}
+  }
+ }
+ for(const [f1,x1,y1,f2,x2,y2] of PORTALS){addEdge(addNode(f1,x1,y1),addNode(f2,x2,y2),70)}
+}
+build();
+function nearest(f,x,y){let best=null,bd=1e18;for(const [k,n] of G.nodes){if(n.f!==f)continue;const d=(n.x-x)**2+(n.y-y)**2;if(d<bd){bd=d;best=k}}return best}
+function dijkstra(s,t){
+ const dist=new Map([[s,0]]),prev=new Map(),done=new Set();
+ const pq=[[0,s]];
+ while(pq.length){
+  pq.sort((a,b)=>a[0]-b[0]);const [d,u]=pq.shift();
+  if(done.has(u))continue;done.add(u);if(u===t)break;
+  for(const [v,w] of G.adj.get(u)){const nd=d+w;if(nd<(dist.get(v)??1e18)){dist.set(v,nd);prev.set(v,u);pq.push([nd,v])}}
+ }
+ if(!dist.has(t))return null;
+ const path=[];let c=t;while(c){path.push(c);c=prev.get(c)}return path.reverse();
+}
+/* ---------- Data & tampilan ---------- */
+const $=s=>document.querySelector(s);
+const FL={1:'Lantai 1',2:'Lantai 2'};
+const title=s=>s.toLowerCase().replace(/\b([a-z])/g,m=>m.toUpperCase()).replace(/\bNvd\b/,'NVD');
+const bname=b=>b.n.replace(/^\d+\s+/,'');
+const worlds=[...new Set(BR.map(b=>b.f+'|'+b.w))].sort();
+let state={start:'l1-utara',q:'',w:'',floor:1,sel:null,route:null};
+const ns='http://www.w3.org/2000/svg';
+const layers=$('#layers');
+function el(tag,attrs,parent){const e=document.createElementNS(ns,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);(parent||layers).appendChild(e);return e}
+let vb={x:0,y:0,w:1500,h:1204};
+function setVB(){ $('#map').setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`) }
+function fit(box,pad){
+ const wrap=$('#mapwrap').getBoundingClientRect();const ar=wrap.width/wrap.height||1.2;
+ let w=box.w+pad*2,h=box.h+pad*2;
+ if(w/h<ar)w=h*ar;else h=w/ar;
+ w=Math.max(Math.min(w,1500),480);h=Math.min(h,1204);if(w/h>ar)h=w/ar;
+ vb={x:box.x+box.w/2-w/2,y:box.y+box.h/2-h/2,w,h};clampVB();setVB();
+}
+function clampVB(){vb.w=Math.max(260,Math.min(vb.w,1500));vb.h=vb.w*($('#mapwrap').clientHeight/$('#mapwrap').clientWidth||0.8);if(vb.h>1204){vb.h=1204;vb.w=vb.h*($('#mapwrap').clientWidth/$('#mapwrap').clientHeight)}
+ vb.x=Math.max(-150,Math.min(vb.x,1500-vb.w+150));vb.y=Math.max(-150,Math.min(vb.y,1204-vb.h+150))}
+function resetView(){const wr=$('#mapwrap');const ar=wr.clientWidth/wr.clientHeight||1.2;
+ if(wr.clientWidth<600){const S=STARTS[state.start];const fl=state.floor;const c=(S.f===fl)?[S.x,S.y+(S.y>600?-200:200)]:[ESC[fl][0]+ESC[fl][2]/2,ESC[fl][1]+ESC[fl][3]/2];
+  const w=560,h=w/ar;vb={x:c[0]-w/2,y:c[1]-h/2,w,h};setVB();return}
+ const P=POLY[state.floor];const xs=P.map(p=>p[0]),ys=P.map(p=>p[1]);
+ const x0=Math.min(...xs)-30,x1=Math.max(...xs)+30,y0=Math.min(...ys)-40,y1=Math.max(...ys)+40;
+ let w=x1-x0,h=y1-y0;if(w/h<ar)w=h*ar;else h=w/ar;
+ vb={x:(x0+x1)/2-w/2,y:(y0+y1)/2-h/2,w,h};setVB()}
+const FS=12.5,CW=0.6,LH=1.18;
+function splits(w,n){if(n===1)return [[w.join(' ')]];const r=[];for(let i=1;i<=w.length-n+1;i++)for(const rest of splits(w.slice(i),n-1))r.push([w.slice(0,i).join(' '),...rest]);return r}
+function layoutLabel(s,W,H){const w=s.split(' ');
+ for(const rot of [false,true]){const A=rot?H:W,Bh=rot?W:H;
+  for(let n=1;n<=Math.min(3,w.length);n++){let best=null;for(const ls of splits(w,n)){const m=Math.max(...ls.map(x=>x.length));if(!best||m<best.m)best={m,ls}}
+   if(best.m*CW*FS<=A-6&&n*FS*LH<=Bh-4)return {rot,lines:best.ls}}}
+ const n=Math.min(3,w.length);let best=null;for(const ls of splits(w,n)){const m=Math.max(...ls.map(x=>x.length));if(!best||m<best.m)best={m,ls}}
+ return {rot:H>W,lines:best.ls}}
+function drawBase(f,selT){
+ const pts=POLY[f].map(p=>p.join(',')).join(' ');
+ el('polygon',{points:pts,fill:'#e7e3dd',stroke:'#3f3a36','stroke-width':9,'stroke-linejoin':'miter'});
+ const A=AIS[f],M=MAIN[f];
+ const road=(x1,y1,x2,y2,main)=>{if(main){el('line',{x1,y1,x2,y2,stroke:'#cfc6bb','stroke-width':46,'stroke-linecap':'square'})}
+   el('line',{x1,y1,x2,y2,stroke:main?'#fbf8f4':'#f3efe9','stroke-width':main?40:24,'stroke-linecap':'square'})};
+ for(const [y,a,b] of A.H)if(!M.H.includes(y))road(a,y,b,y,false);
+ for(const [x,a,b] of A.V)if(!M.V.includes(x))road(x,a,x,b,false);
+ for(const [y,a,b] of A.H)if(M.H.includes(y))road(a,y,b,y,true);
+ for(const [x,a,b] of A.V)if(M.V.includes(x))road(x,a,x,b,true);
+ // label main road
+ for(const [y,a,b] of A.H)if(M.H.includes(y)){for(const xx of [a+(b-a)*0.12,b-(b-a)*0.12]){const t=el('text',{x:xx,y:y+5,'text-anchor':'middle','font-size':12,'font-weight':700,fill:'#b5aca1','letter-spacing':3});t.textContent='MAIN ROAD'}}
+ for(const [x,a,b] of A.V)if(M.V.includes(x)){for(const yy of [a+(b-a)*0.08,b-(b-a)*0.08]){const t=el('text',{x:x,y:yy,'text-anchor':'middle','font-size':12,'font-weight':700,fill:'#b5aca1','letter-spacing':3,transform:`rotate(-90 ${x} ${yy}) translate(0 5)`});t.textContent='MAIN ROAD'}}
+ // eskalator
+ const E=ESC[f];const g0=el('g',{});
+ el('rect',{x:E[0],y:E[1],width:E[2],height:E[3],fill:'#d6d3d1',stroke:'#57534e','stroke-width':4},g0);
+ for(let i=1;i<9;i++)el('line',{x1:E[0]+i*E[2]/9,y1:E[1]+8,x2:E[0]+i*E[2]/9,y2:E[1]+E[3]-8,stroke:'#a8a29e','stroke-width':2.5},g0);
+ const et=el('text',{x:E[0]+E[2]/2,y:E[1]+E[3]/2+6,'text-anchor':'middle','font-size':16,'font-weight':800,fill:'#292524','letter-spacing':2,stroke:'#d6d3d1','stroke-width':6,'paint-order':'stroke'},g0);et.textContent='ESKALATOR';
+ // counter: isi dulu, lalu garis dalam tipis, lalu outline pulau tebal (semua garis lurus)
+ TILES[f].forEach((t,i)=>el('rect',{x:t.x,y:t.y,width:t.w,height:t.h,fill:i===selT?'#d3202f':'#ffffff',stroke:'#a8a29e','stroke-width':1.6,'shape-rendering':'crispEdges'}));
+ for(const s of ISLES[f])el('rect',{x:s.x,y:s.y,width:s.w,height:s.h,fill:'none',stroke:'#3f3a36','stroke-width':3.2,'stroke-linejoin':'miter','shape-rendering':'crispEdges'});
+ if(selT>=0){const t=TILES[f][selT];el('rect',{x:t.x,y:t.y,width:t.w,height:t.h,fill:'none',stroke:'#8f111c','stroke-width':4,'shape-rendering':'crispEdges'})}
+ TILES[f].forEach((t,i)=>{
+  if(!t.n)return;const sel=i===selT;const L=layoutLabel(title(t.n),t.w,t.h);
+  const cx=t.x+t.w/2,cy=t.y+t.h/2;const g=el('g',{transform:L.rot?`rotate(-90 ${cx} ${cy})`:''});
+  L.lines.forEach((ln,k)=>{const dy=(k-(L.lines.length-1)/2)*FS*LH+FS*0.36;
+   const tx=el('text',{x:cx,y:cy+dy,'text-anchor':'middle','font-size':FS,'font-weight':700,fill:sel?'#ffffff':'#292524','font-family':'Arial,Helvetica,sans-serif'},g);tx.textContent=ln});
+ });
+ for(const [x,y,lab] of PINTU[f]){const g=el('g',{});const w=lab.length*10+28;
+  el('rect',{x:x-w/2,y:y-15,width:w,height:30,rx:15,fill:'#d3202f'},g);
+  const tt=el('text',{x,y:y+6,'text-anchor':'middle','font-size':15,'font-weight':800,fill:'#fff','letter-spacing':1.5},g);tt.textContent=lab}
+}
+function draw(){
+ layers.innerHTML='';
+ const f=state.floor;
+ drawBase(f,(state.sel&&state.sel.f===f)?state.sel.t:-1);drawCat(f);
+ const r=state.route;
+ if(r){
+  const sel=state.sel;
+  if(sel.f===f){
+   if(!sel.e)el('circle',{cx:sel.x,cy:sel.y,r:62,fill:'rgba(211,32,47,.12)',stroke:'#d3202f','stroke-width':3,'stroke-dasharray':'8 6'});
+  }
+  for(const seg of r.segs){
+   if(seg.f!==f||seg.pts.length<2)continue;
+   const d=seg.pts.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' ');
+   el('path',{d,fill:'none',stroke:'#fff','stroke-width':14,'stroke-linecap':'round','stroke-linejoin':'round'});
+   el('path',{d,fill:'none',stroke:'#d3202f','stroke-width':8,'stroke-linecap':'round','stroke-linejoin':'round','stroke-dasharray':'18 12',class:'routeline'});
+  }
+  for(const m of r.marks)if(m.f===f){
+   const g=el('g',{});
+   el('circle',{cx:m.x,cy:m.y,r:15,fill:'#fff',stroke:m.c,'stroke-width':6},g);
+   el('circle',{cx:m.x,cy:m.y,r:6,fill:m.c},g);
+   if(m.t){const t=el('text',{x:(m.t==='Anda'?m.x+24:m.x),y:(m.t==='Anda'?m.y+9:(m.y<300?m.y+44:m.y-24)),'text-anchor':(m.t==='Anda'?'start':m.x>1150?'end':m.x<250?'start':'middle'),'font-size':26,'font-weight':700,fill:'#14213d',stroke:'#fff','stroke-width':6,'paint-order':'stroke'},g);t.textContent=m.t}
+  }
+ }else{
+  const s=STARTS[state.start];
+  if(s.f===f){el('circle',{cx:s.x,cy:s.y,r:15,fill:'#fff',stroke:'#292524','stroke-width':6});el('circle',{cx:s.x,cy:s.y,r:6,fill:'#292524'});
+   const t=el('text',{x:s.x+24,y:s.y+9,'text-anchor':'start','font-size':26,'font-weight':700,fill:'#14213d',stroke:'#fff','stroke-width':6,'paint-order':'stroke'});t.textContent='Anda di sini'}
+ }
+ document.querySelectorAll('.floors button').forEach(b=>b.classList.toggle('on',+b.dataset.f===f));
+}
+function setFloor(f){state.floor=f;draw()}
+function hereLabel(){const s=STARTS[state.start];$('#hereBtn').innerHTML='Anda di: <b>'+s.name+' · '+s.sub+'</b> ▾'}
+const CATS=[
+ ['Fashion Pria Casual',['MEN CONTEMP CASUAL','MEN YOUNG CASUAL']],
+ ['Fashion Formal Pria',['MEN FORMAL']],
+ ['Pakaian Dalam Pria',['MEN ESSENTIALS']],
+ ['Handuk',['HANDUK'],'Handuk'],
+ ['Sepatu Pria',['MEN SHOES']],
+ ['Sepatu Sport',['ACTIVE SHOES']],
+ ['Sepatu Wanita',['LADIES SHOES']],
+ ['Sepatu Anak',['CHILDREN SHOES']],
+ ['Pakaian Wanita',['LADIES CLASSIC','LADIES BASIC']],
+ ['Pakaian Remaja Wanita',['YOUNG FASHION']],
+ ['Pakaian Anak',['CHILDREN BOYS','CHILDREN GIRLS','INFANTS & ESSENTIALS']],
+ ['Pakaian Dalam Wanita',['INTIMATE']],
+ ['Cosmetic',['LOCAL BRAND','INTERNATIONAL BRAND','FRAGRANCE'],['Local Brand','International Brand','Fragrance']],
+ ['Handbag',['HANDBAGS','ACCESSORIES'],'Handbags'],
+ ['Travel & Bag School',['TRAVEL'],'Home & Travel']];
+let mode='';
+function setMode(m){mode=(mode===m)?'':m;$('#mB').classList.toggle('on',mode==='B');$('#mK').classList.toggle('on',mode==='K');
+ $('#ddB').hidden=mode!=='B';$('#ddK').hidden=mode!=='K';$('#hint').style.display=mode?'none':'block'}
+function renderCats(){const L=$('#catlist');L.innerHTML='';
+ CATS.forEach((c,i)=>{const bs=BR.filter(b=>catKeys(c).includes(b.a||b.k));const f=bs.length?bs[0].f:[1,2].find(F=>TCAT[F].some(k=>catKeys(c).includes(k)));if(!f)return;
+  const d=document.createElement('div');d.className='item';
+  d.innerHTML=`<span class="cnum">${i+1}</span><div><div class="n">${c[0]}</div><div class="s">Area ${c[1].map(title).join(' & ')}</div></div><span class="badge ${f===2?'f2':''}">Lantai ${f}</span>`;
+  d.onclick=()=>pickCat(c);L.appendChild(d)})}
+function renderChips(){return;
+ const c=$('#chips');c.innerHTML='';
+ const mk=(label,val)=>{const b=document.createElement('button');b.className='chip'+(state.w===val?' on':'');b.textContent=label;b.onclick=()=>{state.w=val;renderChips();renderList()};c.appendChild(b)};
+ mk('Semua','');
+ for(const k of worlds){const [f,w]=k.split('|');mk(title(w)+' · L'+f,k)}
+}
+function renderList(){
+ const q=state.q.trim().toLowerCase();
+ let a=BR.filter(b=>!q||bname(b).toLowerCase().includes(q));
+ a.sort((x,y)=>bname(x).localeCompare(bname(y)));
+ const L=$('#list');L.innerHTML='';
+ if(!a.length){L.innerHTML='<div class="empty">Brand tidak ditemukan.<br>Coba kata lain atau pilih kategori.</div>';return}
+ let lastL='';for(const b of a){
+  const L0=bname(b)[0].toUpperCase();if(!q&&L0!==lastL){lastL=L0;const h=document.createElement('div');h.className='letter';h.textContent=L0;L.appendChild(h)}
+  const d=document.createElement('div');d.className='item';
+  d.innerHTML=`<div><div class="n">${title(bname(b))}</div><div class="s">${title(b.w)}</div></div><span class="badge ${b.f===2?'f2':''}">Lantai ${b.f}</span>`;
+  d.onclick=()=>pick(b);L.appendChild(d);
+ }
+}
+function buildRoute(s,b){
+ const path=dijkstra(nearest(s.f,s.x,s.y),nearest(b.f,b.x,b.y));
+ const segs=[];let cur=null,len=0,pv=null;
+ for(const k of path){const n=G.nodes.get(k);if(pv&&pv.f===n.f)len+=Math.abs(pv.x-n.x)+Math.abs(pv.y-n.y);else if(pv)len+=70;pv=n;if(!cur||cur.f!==n.f){cur={f:n.f,pts:[]};segs.push(cur)}cur.pts.push([n.x,n.y])}
+ {const q=segs[0].pts[0];segs[0].pts.unshift([q[0],s.y]);segs[0].pts.unshift([s.x,s.y]);}
+ const last=segs[segs.length-1];{const q=last.pts[last.pts.length-1];const prev=last.pts[last.pts.length-2]||q;const horiz=Math.abs(prev[1]-q[1])<1;last.pts.push(horiz?[b.x,q[1]]:[q[0],b.y]);}if(!b.area)last.pts.push([b.x,b.y]);
+ const marks=[{f:s.f,x:s.x,y:s.y,c:'#292524',t:'Anda'}];
+ for(let i=1;i<path.length;i++){const a=G.nodes.get(path[i-1]),c=G.nodes.get(path[i]);if(a.f!==c.f){
+  marks.push({f:a.f,x:a.x,y:a.y,c:'#57534e',t:(c.f>a.f?'Naik':'Turun')+' eskalator ke Lt '+c.f});
+  marks.push({f:c.f,x:c.x,y:c.y,c:'#57534e',t:'Keluar eskalator'})}}
+ return {segs,marks,cross:s.f!==b.f,len};
+}
+function pick(b){
+ const AK=b.a||b.k;if(b.t<0&&TCAT[b.f].includes(AK)){pickCat([title(b.w),[b.w],AK],b);return}
+ const s=STARTS[state.start];const r=buildRoute(s,b);
+ if(b.t<0)r.marks.push({f:b.f,x:b.x,y:b.y,c:'#d3202f',t:title(bname(b))});
+ state.cat=null;state.sel=b;state.route=r;
+ state.floor=s.f;draw();fitRoute(s.f);
+ showRoute(b,s);
+}
+function catKey(c){return c[2]||c[0]}
+function catKeys(c){const k=catKey(c);return Array.isArray(k)?k:[k]}
+function catArea(c,fl){
+ const KS=catKeys(c);const bs=BR.filter(b=>KS.includes(b.a||b.k)&&(!fl||b.f===fl));const f=fl||(bs.length?bs[0].f:[1,2].find(F=>TCAT[F].some(k=>KS.includes(k))));
+ const tiles=new Set(TCAT[f].map((k,i)=>KS.includes(k)?i:-1).filter(i=>i>=0));
+ const blobs=[];if(!tiles.size){const xs=bs.map(b=>b.x),ys=bs.map(b=>b.y);blobs.push({x:Math.min(...xs)-60,y:Math.min(...ys)-60,w:Math.max(...xs)-Math.min(...xs)+120,h:Math.max(...ys)-Math.min(...ys)+120})}
+ return {f,tiles,blobs,brands:bs};
+}
+function catRects(A){
+ const out=[];const used=new Set();
+ for(const I of ISLES[A.f]){const inI=TILES[A.f].map((t,i)=>i).filter(i=>{const t=TILES[A.f][i];return t.x>=I.x-1&&t.y>=I.y-1&&t.x+t.w<=I.x+I.w+1&&t.y+t.h<=I.y+I.h+1});
+  const sel=inI.filter(i=>A.tiles.has(i));if(!sel.length)continue;
+  if(sel.length===inI.length)out.push({x:I.x,y:I.y,w:I.w,h:I.h});else sel.forEach(i=>out.push(TILES[A.f][i]));sel.forEach(i=>used.add(i))}
+ A.tiles.forEach(i=>{if(!used.has(i))out.push(TILES[A.f][i])});
+ return out.length?out:A.blobs.map(b=>({...b,round:1}));
+}
+function pickCat(c,brand){
+ const s=STARTS[state.start];const A=catArea(c,brand&&brand.f);const R=catRects(A);
+ let best=null;
+ const amax=Math.max(...R.map(r=>r.w*r.h));
+ for(const r of R.filter(r=>r.w*r.h>=amax*0.5)){const tg={f:A.f,x:Math.round(r.x+r.w/2),y:Math.round(r.y+r.h/2),area:1};const ro=buildRoute(s,tg);if(!best||ro.len<best.ro.len)best={ro,tg}}
+ state.cat={name:c[0],worlds:c[1],f:A.f,rects:R,brands:A.brands};
+ state.sel={f:A.f,x:best.tg.x,y:best.tg.y,t:-1,e:1};state.route=best.ro;
+ state.floor=s.f;draw();fitRoute(s.f);showCat(s,brand);
+}
+function drawCat(f){
+ const C=state.cat;if(!C||C.f!==f)return;
+ for(const r of C.rects){const rx=r.round?24:0;
+  el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,rx,fill:'rgba(211,32,47,.10)'});
+  el('rect',{x:r.x-4,y:r.y-4,width:r.w+8,height:r.h+8,rx:rx&&rx+4,fill:'none',stroke:'#d3202f','stroke-width':16,class:'glow'});
+  el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,rx,fill:'none',stroke:'#d3202f','stroke-width':6});
+  el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,rx,fill:'none',stroke:'#fff','stroke-width':3,'stroke-dasharray':'4 12','stroke-linecap':'round',class:'lights'});
+ }
+}
+function showCat(s,brand){
+ const C=state.cat;$('#browse').style.display='none';const R=$('#route');R.style.display='block';
+ const steps=[`Mulai dari <b>${s.name}, ${s.sub}</b> (titik hitam di peta).`];
+ if(state.route.cross){steps.push(`Ikuti garis merah menuju <b>eskalator</b>, lalu ${C.f>s.f?'naik':'turun'} ke <b>Lantai ${C.f}</b>.`);steps.push(`Di Lantai ${C.f}, lanjutkan mengikuti garis merah.`)}
+ else steps.push('Ikuti garis merah di peta.');
+ if(brand)steps.push(`<b>${title(bname(brand))}</b> ada di dalam <b>area bergaris merah</b> (lampu berjalan). Cari papan nama ${title(bname(brand))} di counter-counter area ini, atau tanyakan ke staf terdekat.`);else steps.push(`Area <b>${C.name}</b> ditandai <b>garis merah dengan lampu berjalan</b>. Semua counter di dalam garis itu menjual ${C.name.toLowerCase()}.`);
+ const seen=new Set();const bs=[...C.brands].sort((a,b)=>bname(a).localeCompare(bname(b))).filter(b=>{const k=bname(b).toLowerCase();if(seen.has(k))return false;seen.add(k);return true});
+ R.innerHTML=`<div class="top"><button class="back" id="bk">&larr; Kembali</button></div>
+ <h2>${brand?title(bname(brand)):C.name}</h2><div class="sub">${brand?'Area '+title(brand.w):'Area '+C.worlds.map(title).join(' & ')} · Lantai ${C.f}${state.route.cross?' · beda lantai dari posisi Anda':''}</div>
+ <ol class="steps">${steps.map(x=>`<li>${x}</li>`).join('')}</ol>
+ ${state.route.cross?`<button class="back" id="nf" style="margin-top:6px;background:#d3202f;color:#fff;border-color:#d3202f;width:100%;padding:11px">Setelah di eskalator: lihat area di Lantai ${C.f} &rarr;</button>`:''}
+ ${bs.length?`<div class="sub" style="margin-top:14px;font-weight:700;color:var(--ink)">Brand di area ini (${bs.length}) — ketuk untuk rute ke counter:</div>
+ <div class="blist">${bs.map((b,i)=>`<button data-i="${BR.indexOf(b)}">${title(bname(b))}</button>`).join('')}</div>`:''}`;
+ $('#bk').onclick=back;
+ if($('#nf'))$('#nf').onclick=()=>{setFloor(C.f);fitRoute(C.f)};
+ R.querySelectorAll('.blist button').forEach(x=>x.onclick=()=>pick(BR[+x.dataset.i]));
+}
+function fitRoute(f){
+ const pts=[];for(const seg of state.route.segs)if(seg.f===f)pts.push(...seg.pts);
+ for(const m of state.route.marks)if(m.f===f)pts.push([m.x,m.y]);
+ if(state.cat&&state.cat.f===f)for(const r of state.cat.rects){pts.push([r.x,r.y]);pts.push([r.x+r.w,r.y+r.h])}
+ const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
+ fit({x:Math.min(...xs),y:Math.min(...ys),w:Math.max(...xs)-Math.min(...xs)||80,h:Math.max(...ys)-Math.min(...ys)||80},90);
+}
+function showRoute(b,s){
+ $('#browse').style.display='none';const R=$('#route');R.style.display='block';
+ const steps=[];
+ steps.push(`Mulai dari <b>${s.name}, ${s.sub}</b> (titik hitam di peta).`);
+ if(state.route.cross){
+  steps.push(`Ikuti garis merah menuju <b>eskalator</b> di tengah toko (tanda abu-abu), lalu ${b.f>s.f?'naik':'turun'} ke <b>Lantai ${b.f}</b>.`);
+  steps.push(`Di Lantai ${b.f}, lanjutkan mengikuti garis merah ke area <b>${title(b.w)}</b>.`);
+ }else{
+  steps.push(`Ikuti garis merah menuju area <b>${title(b.w)}</b>.`);
+ }
+ steps.push(b.t>=0?`<b>${title(bname(b))}</b> ada di counter berwarna merah pada peta.`:`<b>${title(bname(b))}</b> ada di sekitar lingkaran merah putus-putus (area ${title(b.w)}). Lihat papan nama di counter.`);
+ R.innerHTML=`<div class="top"><button class="back" id="bk">&larr; Cari lagi</button></div>
+ <h2>${title(bname(b))}</h2><div class="sub">${title(b.w)} · Lantai ${b.f}${state.route.cross?' · beda lantai dari posisi Anda':''}</div>
+ <ol class="steps">${steps.map(x=>`<li>${x}</li>`).join('')}</ol>
+ ${state.route.cross?`<button class="back" id="nf" style="margin-top:6px;background:#d3202f;color:#fff;border-color:#d3202f;width:100%;padding:11px">Setelah di eskalator: lihat rute Lantai ${b.f} &rarr;</button><div class="note">Anda juga bisa pindah lantai lewat tombol <b>Lantai 1 / Lantai 2</b> di peta.</div>`:''}`;
+ $('#bk').onclick=back;
+ if($('#nf'))$('#nf').onclick=()=>{setFloor(b.f);fitRoute(b.f)};
+}
+function back(){state.route=null;state.sel=null;state.cat=null;$('#route').style.display='none';$('#browse').style.display='flex';draw();resetView()}
+/* posisi awal */
+function openSheet(){
+ const o=$('#opts');o.innerHTML='';
+ for(const k in STARTS){const s=STARTS[k];const b=document.createElement('button');b.className='opt'+(k===state.start?' on':'');b.innerHTML=`<span style="font-size:20px">📍</span><span><b>${s.name}</b><small>${s.sub}</small></span>`;b.onclick=()=>{setStart(k);$('#sheet').classList.remove('show')};o.appendChild(b)}
+ $('#sheet').classList.add('show');
+}
+function setStart(k){
+ if(!STARTS[k])return;state.start=k;try{history.replaceState(null,'','#'+k)}catch(e){try{location.hash=k}catch(_){}}
+ hereLabel();state.floor=STARTS[k].f;
+ if(state.cat){const c=CATS.find(c=>c[0]===state.cat.name);pickCat(c)}else if(state.sel)pick(state.sel);else{draw();resetView()}
+}
+$('#hereBtn').onclick=openSheet;
+$('#sheet').onclick=e=>{if(e.target.id==='sheet')$('#sheet').classList.remove('show')};
+document.querySelectorAll('.floors button').forEach(b=>b.onclick=()=>{setFloor(+b.dataset.f);if(state.route)fitRoute(+b.dataset.f);else resetView()});
+$('#q').addEventListener('input',e=>{state.q=e.target.value;renderList()});
+window.addEventListener('hashchange',()=>{const k=location.hash.slice(1);if(STARTS[k]&&k!==state.start)setStart(k)});
+/* pan & zoom */
+const svg=$('#map');const ptr=new Map();let last=null;
+function zoomAt(f,cx,cy){const r=svg.getBoundingClientRect();const mx=vb.x+(cx-r.left)/r.width*vb.w,my=vb.y+(cy-r.top)/r.height*vb.h;
+ const nw=Math.max(260,Math.min(1500,vb.w*f));const k=nw/vb.w;vb.x=mx-(mx-vb.x)*k;vb.y=my-(my-vb.y)*k;vb.w=nw;vb.h*=k;setVB()}
+svg.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.deltaY>0?1.15:0.87,e.clientX,e.clientY)},{passive:false});
+svg.addEventListener('pointerdown',e=>{svg.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);last=null});
+svg.addEventListener('pointermove',e=>{
+ if(!ptr.has(e.pointerId))return;const r=svg.getBoundingClientRect();
+ const old=ptr.get(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);
+ if(ptr.size===1){vb.x-=(e.clientX-old[0])/r.width*vb.w;vb.y-=(e.clientY-old[1])/r.height*vb.h;setVB()}
+ else if(ptr.size===2){const p=[...ptr.values()];const d=Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1]);if(last)zoomAt(last/d,(p[0][0]+p[1][0])/2,(p[0][1]+p[1][1])/2);last=d}
+});
+const up=e=>{ptr.delete(e.pointerId);last=null};svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);
+$('#zin').onclick=()=>{const r=svg.getBoundingClientRect();zoomAt(0.75,r.left+r.width/2,r.top+r.height/2)};
+$('#zout').onclick=()=>{const r=svg.getBoundingClientRect();zoomAt(1.33,r.left+r.width/2,r.top+r.height/2)};
+$('#zreset').onclick=()=>{if(state.route)fitRoute(state.floor);else resetView()};
+window.addEventListener('resize',()=>{if(state.route)fitRoute(state.floor);else resetView()});
+/* mulai */
+(function init(){
+ const k=location.hash.slice(1);if(STARTS[k]){state.start=k;state.floor=STARTS[k].f}
+ hereLabel();renderList();renderCats();$('#mB').onclick=()=>setMode('B');$('#mK').onclick=()=>setMode('K');draw();resetView();
+})();
+</script>
+</body>
+</html>
