@@ -83,6 +83,8 @@ svg#map{width:100%;height:100%;display:block;touch-action:none;cursor:grab;user-
 @keyframes pulse{0%,100%{opacity:.45}50%{opacity:.08}}
 .lights{animation:run .7s linear infinite}
 .glow{animation:pulse 1.3s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+.blink{animation:blink 1s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -95,7 +97,7 @@ svg#map{width:100%;height:100%;display:block;touch-action:none;cursor:grab;user-
     <section id="mapwrap">
       <div class="floors"><button data-f="1">Lantai 1</button><button data-f="2">Lantai 2</button></div>
       <div class="zoom"><button id="zin" aria-label="Perbesar">+</button><button id="zout" aria-label="Perkecil">&minus;</button><button id="zreset" aria-label="Reset" style="font-size:13px">&#8634;</button></div>
-      <div class="legend"><span><i class="dot" style="background:#292524"></i>Posisi Anda</span><span><i class="dot" style="background:#d3202f"></i>Tujuan</span><span><i class="dot" style="background:#fff;border:3px dashed #d3202f;box-sizing:border-box"></i>Rute</span></div>
+      <div class="legend"><span><i class="dot blink" style="background:#d3202f"></i>Posisi Anda</span><span><i class="dot" style="background:#d3202f"></i>Tujuan</span><span><i class="dot" style="background:#fff;border:3px dashed #d3202f;box-sizing:border-box"></i>Rute</span></div>
       <svg id="map" viewBox="0 0 1500 1204" xmlns="http://www.w3.org/2000/svg"><g id="layers"></g></svg>
     </section>
     <section id="panel">
@@ -197,7 +199,7 @@ function fit(box,pad){
 function clampVB(){vb.w=Math.max(260,Math.min(vb.w,1500));vb.h=vb.w*($('#mapwrap').clientHeight/$('#mapwrap').clientWidth||0.8);if(vb.h>1204){vb.h=1204;vb.w=vb.h*($('#mapwrap').clientWidth/$('#mapwrap').clientHeight)}
  vb.x=Math.max(-150,Math.min(vb.x,1500-vb.w+150));vb.y=Math.max(-150,Math.min(vb.y,1204-vb.h+150))}
 function resetView(){const wr=$('#mapwrap');const ar=wr.clientWidth/wr.clientHeight||1.2;
- if(wr.clientWidth<600){const S=STARTS[state.start];const fl=state.floor;const c=(S.f===fl)?[S.x,S.y+(S.y>600?-200:200)]:[ESC[fl][0]+ESC[fl][2]/2,ESC[fl][1]+ESC[fl][3]/2];
+ if(wr.clientWidth<600){const S=STARTS[state.start];const fl=state.floor;const c=(S.f===fl)?[S.x,S.y+(S.y>900?-150:S.y<300?150:0)]:[ESC[fl][0]+ESC[fl][2]/2,ESC[fl][1]+ESC[fl][3]/2];
   const w=560,h=w/ar;vb={x:c[0]-w/2,y:c[1]-h/2,w,h};setVB();return}
  const P=POLY[state.floor];const xs=P.map(p=>p[0]),ys=P.map(p=>p[1]);
  const x0=Math.min(...xs)-30,x1=Math.max(...xs)+30,y0=Math.min(...ys)-40,y1=Math.max(...ys)+40;
@@ -243,6 +245,15 @@ function drawBase(f,selT){
   el('rect',{x:x-w/2,y:y-15,width:w,height:30,rx:15,fill:'#d3202f'},g);
   const tt=el('text',{x,y:y+6,'text-anchor':'middle','font-size':15,'font-weight':800,fill:'#fff','letter-spacing':1.5},g);tt.textContent=lab}
 }
+function youMarker(x,y,label){
+ const g=el('g',{});
+ for(const d of ['0s','0.75s']){const c=el('circle',{cx:x,cy:y,r:16,fill:'#d3202f',opacity:.5},g);
+  const a1=document.createElementNS(ns,'animate');a1.setAttribute('attributeName','r');a1.setAttribute('values','16;46');a1.setAttribute('dur','1.5s');a1.setAttribute('begin',d);a1.setAttribute('repeatCount','indefinite');c.appendChild(a1);
+  const a2=document.createElementNS(ns,'animate');a2.setAttribute('attributeName','opacity');a2.setAttribute('values','.55;0');a2.setAttribute('dur','1.5s');a2.setAttribute('begin',d);a2.setAttribute('repeatCount','indefinite');c.appendChild(a2)}
+ el('circle',{cx:x,cy:y,r:16,fill:'#fff',stroke:'#d3202f','stroke-width':7},g);
+ el('circle',{cx:x,cy:y,r:7,fill:'#d3202f',class:'blink'},g);
+ const t=el('text',{x:x+26,y:y+9,'text-anchor':'start','font-size':28,'font-weight':800,fill:'#d3202f',stroke:'#fff','stroke-width':7,'paint-order':'stroke',class:'blink'},g);t.textContent=label;
+}
 function draw(){
  layers.innerHTML='';
  const f=state.floor;
@@ -260,6 +271,7 @@ function draw(){
    el('path',{d,fill:'none',stroke:'#d3202f','stroke-width':8,'stroke-linecap':'round','stroke-linejoin':'round','stroke-dasharray':'18 12',class:'routeline'});
   }
   for(const m of r.marks)if(m.f===f){
+   if(m.t==='Anda'){youMarker(m.x,m.y,'Anda di sini');continue}
    const g=el('g',{});
    el('circle',{cx:m.x,cy:m.y,r:15,fill:'#fff',stroke:m.c,'stroke-width':6},g);
    el('circle',{cx:m.x,cy:m.y,r:6,fill:m.c},g);
@@ -267,8 +279,7 @@ function draw(){
   }
  }else{
   const s=STARTS[state.start];
-  if(s.f===f){el('circle',{cx:s.x,cy:s.y,r:15,fill:'#fff',stroke:'#292524','stroke-width':6});el('circle',{cx:s.x,cy:s.y,r:6,fill:'#292524'});
-   const t=el('text',{x:s.x+24,y:s.y+9,'text-anchor':'start','font-size':26,'font-weight':700,fill:'#14213d',stroke:'#fff','stroke-width':6,'paint-order':'stroke'});t.textContent='Anda di sini'}
+  if(s.f===f)youMarker(s.x,s.y,'Anda di sini');
  }
  document.querySelectorAll('.floors button').forEach(b=>b.classList.toggle('on',+b.dataset.f===f));
 }
@@ -373,7 +384,7 @@ function drawCat(f){
 }
 function showCat(s,brand){
  const C=state.cat;$('#browse').style.display='none';const R=$('#route');R.style.display='block';
- const steps=[`Mulai dari <b>${s.name}, ${s.sub}</b> (titik hitam di peta).`];
+ const steps=[`Mulai dari <b>${s.name}, ${s.sub}</b> (titik merah berkedip di peta).`];
  if(state.route.cross){steps.push(`Ikuti garis merah menuju <b>eskalator</b>, lalu ${C.f>s.f?'naik':'turun'} ke <b>Lantai ${C.f}</b>.`);steps.push(`Di Lantai ${C.f}, lanjutkan mengikuti garis merah.`)}
  else steps.push('Ikuti garis merah di peta.');
  if(brand)steps.push(`<b>${title(bname(brand))}</b> ada di dalam <b>area bergaris merah</b> (lampu berjalan). Cari papan nama ${title(bname(brand))} di counter-counter area ini, atau tanyakan ke staf terdekat.`);else steps.push(`Area <b>${C.name}</b> ditandai <b>garis merah dengan lampu berjalan</b>. Semua counter di dalam garis itu menjual ${C.name.toLowerCase()}.`);
@@ -398,7 +409,7 @@ function fitRoute(f){
 function showRoute(b,s){
  $('#browse').style.display='none';const R=$('#route');R.style.display='block';
  const steps=[];
- steps.push(`Mulai dari <b>${s.name}, ${s.sub}</b> (titik hitam di peta).`);
+ steps.push(`Mulai dari <b>${s.name}, ${s.sub}</b> (titik merah berkedip di peta).`);
  if(state.route.cross){
   steps.push(`Ikuti garis merah menuju <b>eskalator</b> di tengah toko (tanda abu-abu), lalu ${b.f>s.f?'naik':'turun'} ke <b>Lantai ${b.f}</b>.`);
   steps.push(`Di Lantai ${b.f}, lanjutkan mengikuti garis merah ke area <b>${title(b.w)}</b>.`);
